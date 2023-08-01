@@ -1,0 +1,24 @@
+:root {
+  --bs-body-bg: #0d6efd;
+  --bs-emphasis-color: #fff;
+}
+
+.transition {
+  transition: 0.5s;
+}
+
+.anim-show {
+	opacity: 0;
+	transition: 1s;
+	animation: show 1s 1;
+  animation-fill-mode: forwards;
+}
+
+.vertical-align {
+  vertical-align: -.2em;
+}
+
+@keyframes show {
+ 0% { opacity: 0; }
+ 100% { opacity: 1; }
+}
