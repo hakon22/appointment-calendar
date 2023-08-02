@@ -2,6 +2,8 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const { Sequelize, DataTypes } = require('sequelize');
 require('dotenv').config();
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
 const router = express.Router();
 
@@ -16,48 +18,13 @@ const Calendar = db.define(
       type: DataTypes.DATEONLY,
       allowNull: false,
     },
-    time: {
+    open_time: {
       type: DataTypes.ARRAY(DataTypes.TIME),
       allowNull: false,
     },
-    time: {
-      type: DataTypes.ARRAY(DataTypes.STRING),
+    close_time: {
+      type: DataTypes.ARRAY(DataTypes.TIME),
       allowNull: false,
-    },
-    alcohol: {
-      type: DataTypes.ARRAY(DataTypes.STRING),
-      allowNull: false,
-    },
-    transfer: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    children: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    beds: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },    
-    likes: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      defaultValue: 0,
-    },
-    createdAt: {
-      type: DataTypes.STRING,
-      defaultValue: () => {
-        const date = new Date();
-        return date.toLocaleString('ru-RU', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric' });
-      },
-    },
-    updatedAt: {
-      type: DataTypes.STRING,
-      defaultValue: () => {
-        const date = new Date();
-        return date.toLocaleString('ru-RU', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric' });
-      },
     },
   },
   {
@@ -65,11 +32,68 @@ const Calendar = db.define(
   },
 );
 
-router.post('/api/data-add', jsonParser, async (req, res) => {
+const Users = db.define(
+  'Users',
+  {
+    username: {
+      type: DataTypes.STRING,
+      unique: true,
+      allowNull: false,
+    },
+    password: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    email: {
+      type: DataTypes.STRING,
+      unique: true,
+      allowNull: false,
+    },
+  },
+);
+
+const generateAccessToken = (id, email) => jwt.sign({ id, email }, 'putin', {expiresIn: "1h"});
+
+router.post('/api/date-add', jsonParser, async (req, res) => {
   try {
-    const { name, phone, foods, alcohol, transfer, children, beds } = req.body;
-    const todo = await Calendar.create({ name, phone, foods, alcohol, transfer, children, beds });
+    const { date, open_time, close_time } = req.body;
+    const todo = await Calendar.create({ date, open_time, close_time });
     res.status(200).send(todo);
+  } catch (e) {
+    console.log(e);
+    res.sendStatus(500);
+  }
+});
+
+router.post('/api/signup', jsonParser, async (req, res) => {
+  try {
+    const { username, password, email } = req.body;
+    const candidate = await Users.findOne({ email });
+    if (candidate) {
+      return res.json({ message: 'Такой email уже существует', code: 1 });
+    }
+    const hashPassword = bcrypt.hashSync(password, 10);
+    await Users.create({ username, password: hashPassword, email });
+    res.status(200).sendStatus(201);
+  } catch (e) {
+    console.log(e);
+    res.sendStatus(500);
+  }
+});
+
+router.post('/api/login', jsonParser, async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const user = await Users.findOne({ email });
+    if (!user) {
+      return res.json({ message: 'Такой пользователь не зарегистрирован', code: 2 });
+    }
+    const validPassword = bcrypt.compareSync(password, user.password);
+    if (!validPassword) {
+      return res.json({ message: 'Неверный пароль', code: 2 });
+    }
+    const token = generateAccessToken(user.id, user.email);
+    res.status(200).send({ token });
   } catch (e) {
     console.log(e);
     res.sendStatus(500);
@@ -109,9 +133,12 @@ router.get('/api/data-removeLike/:id', jsonParser, async (req, res) => {
   }
 });
 
-router.get('/api/data-all', jsonParser, async (req, res) => {
+router.get('/api/time-all/:date', jsonParser, async (req, res) => {
   try {
-    const todo = await Calendar.findAll();
+    const todo = await Calendar.findAll({
+      attributes: ['open_time', 'close_time'],
+      where: { date },
+    });
     res.status(200).send(todo);
   } catch (e) {
     console.log(e);

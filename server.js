@@ -3,6 +3,7 @@ const path = require('path');
 const cors = require('cors');
 const http = require('http');
 const { Server } = require("socket.io");
+const passport = require('passport');
 const { router, db } = require('./api.js');
 const app = express();
 const server = http.createServer(app);
@@ -17,6 +18,7 @@ app.use(express.static(buildPath));
 app.use(express.json());
 app.use(cors());
 
+app.use(passport.initialize());
 app.use(router);
 
 app.get('*', (req, res) => {

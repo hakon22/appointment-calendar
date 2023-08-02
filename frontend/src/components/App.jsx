@@ -1,15 +1,32 @@
 import { Provider } from 'react-redux';
-import { useMemo, useCallback } from 'react';
+import { useMemo, useCallback, useState } from 'react';
 import { ToastContainer } from 'react-toastify';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import {
+  BrowserRouter, Routes, Route, Navigate,
+} from 'react-router-dom';
 import { io } from 'socket.io-client';
 import store from '../slices/index.js';
 import Calendar from './Calendar.jsx';
+import NavBar from './NavBar.jsx';
+import Page404 from './Page404.jsx';
+import Login from './Login.jsx';
+import Signup from './Signup.jsx';
 import { actions } from '../slices/calendarSlice.js';
-import ApiContext from './Context.jsx';
+import ApiContext, { AuthContext } from './Context.jsx';
+import routes from '../routes.js';
 
 const App = () => {
   const isMobile = window.screen.width <= 768;
+  const [loggedIn, setLoggedIn] = useState(false);
+  const logIn = () => setLoggedIn(true);
+  const logOut = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('username');
+    setLoggedIn(false);
+    window.location.href = routes.loginPage;
+  };
+
+  const authServices = useMemo(() => ({ loggedIn, logIn, logOut }), [loggedIn]);
 
   const socket = io();
   const socketConnect = useCallback((param, arg) => {
@@ -29,20 +46,31 @@ const App = () => {
 
   return (
     <Provider store={store}>
-      <ApiContext.Provider value={socketApi}>
-        <hr className="mt-4" />
-        <div className="container">
-          <div className="row d-flex justify-content-center">
-            <BrowserRouter>
-              <ToastContainer />
-              <Routes>
-                <Route path="/" element={<Calendar isMobile={isMobile} />} />
-              </Routes>
-            </BrowserRouter>
+      <AuthContext.Provider value={authServices}>
+        <ApiContext.Provider value={socketApi}>
+          <NavBar />
+          <hr />
+          <div className="container">
+            <div className="row d-flex justify-content-center">
+              <BrowserRouter>
+                <ToastContainer />
+                <Routes>
+                  <Route
+                    path={routes.homePage}
+                    element={loggedIn
+                      ? <Calendar isMobile={isMobile} />
+                      : <Navigate to={routes.loginPage} />}
+                  />
+                  <Route path={routes.loginPage} element={<Login />} />
+                  <Route path={routes.signupPage} element={<Signup />} />
+                  <Route path={routes.notFoundPage} element={<Page404 />} />
+                </Routes>
+              </BrowserRouter>
+            </div>
           </div>
-        </div>
-        <hr className="mb-4" />
-      </ApiContext.Provider>
+          <hr className="mb-4" />
+        </ApiContext.Provider>
+      </AuthContext.Provider>
     </Provider>
   );
 };
