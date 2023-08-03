@@ -4,6 +4,8 @@ import { setLocale } from 'yup';
 setLocale({
   mixed: {
     required: () => ('validation.required'),
+    notOneOf: () => ('validation.uniq'),
+    test: () => ('validation.mastMatch'),
   },
   string: {
     min: () => ('validation.requirements'),
@@ -12,17 +14,42 @@ setLocale({
   },
 });
 
-export default () => yup.object().shape({
-  name: yup
+export const loginValidation = yup.object().shape({
+  email: yup
+    .string()
+    .email()
+    .trim()
+    .required(),
+  password: yup
+    .string()
+    .trim()
+    .required(),
+});
+
+export const signupValidation = yup.object().shape({
+  username: yup
     .string()
     .trim()
     .required()
     .min(3)
     .max(20),
+  email: yup
+    .string()
+    .email()
+    .trim()
+    .required(),
   phone: yup
     .string()
     .trim()
     .required()
     .transform((value) => value.replace(/[^\d]/g, ''))
     .length(11),
+  password: yup
+    .string()
+    .trim()
+    .required()
+    .min(6, 'validation.passMin'),
+  confirmPassword: yup
+    .string()
+    .test('confirmPassword', (value, context) => value === context.parent.password),
 });

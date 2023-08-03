@@ -1,22 +1,29 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import CalendarApp from 'react-calendar';
 // import cn from 'classnames';
 import {
-  Button, Card, Tabs, Alert, Stack, Spinner,
+  Button, Card, Tabs, Tab, Alert, Stack, Spinner,
 } from 'react-bootstrap';
+import { MobileContext } from '../components/Context.jsx';
 import { fetchLoading, selectors } from '../slices/calendarSlice.js';
 
-const Calendar = ({ isMobile }) => {
+const Calendar = () => {
   const dispatch = useDispatch();
-  const [date, setDate] = useState(null);
+  const isMobile = useContext(MobileContext);
+  const [date, setDate] = useState(undefined);
   const [nav, setNav] = useState('recording');
 
   const { loadingStatus } = useSelector((state) => state.calendar);
+  const { token } = useSelector((state) => state.login);
   const data = useSelector(selectors.selectAll);
 
   useEffect(() => {
-    if (date !== null) {
+    dispatch(fetchLoading(token));
+  }, [dispatch, token]);
+
+  useEffect(() => {
+    if (date) {
       setNav('confirmation');
       dispatch(fetchLoading(date));
     }
@@ -49,7 +56,7 @@ const Calendar = ({ isMobile }) => {
                 onSelect={(key) => setNav(key)}
                 id="tabs"
               >
-                <Tabs.Tab eventKey="recording" title="Запись" disabled={date}>
+                <Tab eventKey="recording" title="Запись" disabled={date}>
                   <hr />
                   <Card.Body>
                     <Card.Title>Запишитесь на сеанс!</Card.Title>
@@ -57,8 +64,8 @@ const Calendar = ({ isMobile }) => {
                       Вы можете сделать это, щёлкнув по желаемой дате календаря слева.
                     </Card.Text>
                   </Card.Body>
-                </Tabs.Tab>
-                <Tabs.Tab eventKey="confirmation" title="Подтверждение" disabled={!date}>
+                </Tab>
+                <Tab eventKey="confirmation" title="Подтверждение" disabled={!date}>
                   <hr />
                   <Card.Body>
                     <Card.Title>Выберите подходящее время:</Card.Title>
@@ -67,7 +74,7 @@ const Calendar = ({ isMobile }) => {
                     </Card.Text>
                     <Button variant="primary">Go somewhere</Button>
                   </Card.Body>
-                </Tabs.Tab>
+                </Tab>
               </Tabs>
             </Card.Header>
           </Card>

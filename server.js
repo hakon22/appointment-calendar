@@ -4,7 +4,8 @@ const cors = require('cors');
 const http = require('http');
 const { Server } = require("socket.io");
 const passport = require('passport');
-const { router, db } = require('./api.js');
+const router = require('./api.js');
+const { connectToDb } = require('./db/connect.js');
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
@@ -19,6 +20,7 @@ app.use(express.json());
 app.use(cors());
 
 app.use(passport.initialize());
+require('./authentication/tokenChecker.js')(passport);
 app.use(router);
 
 app.get('*', (req, res) => {
@@ -38,14 +40,4 @@ server.listen(port, () => {
   console.log(`Server is online on port: ${port}`);
 });
 
-const connect = async () => {
-  try {
-    await db.authenticate();
-    await db.sync();
-    console.log('Соединение с БД было успешно установлено');
-  } catch (e) {
-    console.log('Невозможно выполнить подключение к БД: ', e);
-  }
-};
-
-connect();
+connectToDb();

@@ -1,67 +1,121 @@
-import { Formik, Form, Field } from 'formik';
+import { useFormik } from 'formik';
 import { useTranslation } from 'react-i18next';
+import { useEffect, useContext } from 'react';
 import { useDispatch } from 'react-redux';
-import { useEffect, useContext, useState } from 'react';
-import * as Yup from 'yup';
+import { Button, Form, FloatingLabel } from 'react-bootstrap';
 import cn from 'classnames';
-import { fetchToken } from '../slices/loginSlice.js';
-import { AuthContext } from './Context.jsx';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import { fetchLogin } from '../slices/loginSlice.js';
+import { AuthContext, MobileContext } from './Context.jsx';
+import { loginValidation } from '../validations/validations.js';
+import routes from '../routes.js';
 
 const LoginForm = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const { loggedIn, logIn } = useContext(AuthContext);
-  const [storeErrors, setErrors] = useState(null);
-
-  const SignupSchema = Yup.object().shape({
-    username: Yup.string().required(t('validation.required')),
-    password: Yup.string().required(t('validation.required')),
-  });
+  const isMobile = useContext(MobileContext);
+  const notify = (text, type) => toast[type](text);
 
   useEffect(() => {
     if (loggedIn) {
-      window.location.replace('/');
+      navigate(routes.homePage);
     }
-  }, [loggedIn, storeErrors]);
-  return (
-    <Formik
-      initialValues={{
-        username: '',
-        password: '',
-      }}
-      validationSchema={SignupSchema}
-      onSubmit={async (values) => {
-        const { meta: { requestStatus } } = await dispatch(fetchToken(values));
-        if (requestStatus === 'fulfilled') {
+  }, [loggedIn, navigate]);
+
+  const formik = useFormik({
+    initialValues: {
+      email: '',
+      password: '',
+    },
+    validationSchema: loginValidation,
+    onSubmit: async (values, { setFieldError, setSubmitting }) => {
+      try {
+        const {
+          payload: {
+            token, message, code,
+          },
+        } = await dispatch(fetchLogin(values));
+        if (token) {
           logIn();
-        } else {
-          setErrors(t('validation.loginFailed'));
+        } else if (code === 1) {
+          setSubmitting(false);
+          setFieldError('email', message);
+        } else if (code === 2) {
+          setSubmitting(false);
+          setFieldError('password', message);
+        } else if (!code) {
+          notify(t('toast.networkError'), 'error');
         }
-      }}
+      } catch (e) {
+        console.log(e);
+        notify(t('toast.unknownError'), 'error');
+      }
+    },
+  });
+
+  return (
+    <Form
+      onSubmit={formik.handleSubmit}
+      className={cn(('mx-auto'), {
+        'w-50': !isMobile,
+      })}
     >
-      {({ errors }) => {
-        const styleInput = cn('form-control', {
-          'is-invalid': storeErrors,
-        });
-        return (
-          <Form className="col-12 col-md-6 mt-3 mt-mb-0">
-            <h1 className="text-center mb-4">{t('to_come')}</h1>
-            <div className="form-floating mb-3">
-              <Field id="username" autoFocus name="username" className={styleInput} placeholder={t('you_nick')} required />
-              <label htmlFor="username">{t('you_nick')}</label>
-              {errors.username && <div className="invalid-tooltip">{errors.username}</div>}
-            </div>
-            <div className="form-floating mb-4">
-              <Field name="password" id="password" type="password" className={styleInput} placeholder={t('you_pass')} required />
-              <label htmlFor="password">{t('you_pass')}</label>
-              {storeErrors && !errors.password && <div className="invalid-tooltip">{storeErrors}</div>}
-              {errors.password && <div className="invalid-tooltip">{errors.password}</div>}
-            </div>
-            <button className="w-100 mb-3 btn btn-outline-primary" type="submit">{t('to_come')}</button>
-          </Form>
-        );
-      }}
-    </Formik>
+      <Form.Group
+        className={cn('form-floating', {
+          'mb-3': !formik.errors.email,
+          'mb-5': formik.errors.email && formik.touched.email,
+        })}
+        controlId="email"
+      >
+        <FloatingLabel label={t('loginForm.email')} controlId="email">
+          <Form.Control
+            autoFocus
+            type="email"
+            className="mb-2"
+            onChange={formik.handleChange}
+            value={formik.values.email}
+            disabled={formik.isSubmitting}
+            isInvalid={formik.errors.email && formik.touched.email}
+            onBlur={formik.handleBlur}
+            name="email"
+            placeholder={t('loginForm.email')}
+            required
+          />
+          <Form.Control.Feedback type="invalid" tooltip placement="right">
+            {t(formik.errors.email)}
+          </Form.Control.Feedback>
+        </FloatingLabel>
+      </Form.Group>
+      <Form.Group
+        className={cn('form-floating', {
+          'mb-3': !formik.errors.password,
+          'mb-5': formik.errors.password && formik.touched.password,
+        })}
+        controlId="password"
+      >
+        <FloatingLabel label={t('loginForm.password')} controlId="password">
+          <Form.Control
+            className="mb-2"
+            onChange={formik.handleChange}
+            value={formik.values.password}
+            disabled={formik.isSubmitting}
+            isInvalid={formik.errors.password && formik.touched.password}
+            onBlur={formik.handleBlur}
+            name="password"
+            type="password"
+            placeholder={t('loginForm.password')}
+            required
+          />
+          <Form.Control.Feedback type="invalid" tooltip placement="right">
+            {t(formik.errors.password)}
+          </Form.Control.Feedback>
+        </FloatingLabel>
+      </Form.Group>
+      <Button variant="outline-primary" className="w-100" type="submit">{t('loginForm.submit')}</Button>
+    </Form>
   );
 };
 

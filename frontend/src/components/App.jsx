@@ -6,13 +6,13 @@ import {
 } from 'react-router-dom';
 import { io } from 'socket.io-client';
 import store from '../slices/index.js';
-import Calendar from './Calendar.jsx';
+import Calendar from '../pages/Calendar.jsx';
 import NavBar from './NavBar.jsx';
-import Page404 from './Page404.jsx';
-import Login from './Login.jsx';
-import Signup from './Signup.jsx';
+import Page404 from '../pages/Page404.jsx';
+import Login from '../pages/Login.jsx';
+import Signup from '../pages/Signup.jsx';
 import { actions } from '../slices/calendarSlice.js';
-import ApiContext, { AuthContext } from './Context.jsx';
+import ApiContext, { AuthContext, MobileContext } from './Context.jsx';
 import routes from '../routes.js';
 
 const App = () => {
@@ -20,8 +20,6 @@ const App = () => {
   const [loggedIn, setLoggedIn] = useState(false);
   const logIn = () => setLoggedIn(true);
   const logOut = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('username');
     setLoggedIn(false);
     window.location.href = routes.loginPage;
   };
@@ -44,31 +42,35 @@ const App = () => {
   socket.on('addData', (data) => store.dispatch(actions.addData(data)));
   socket.on('removeData', (data) => store.dispatch(actions.removeData(data)));
 
+  const isAuth = store.getState().login.token && loggedIn;
+
   return (
     <Provider store={store}>
       <AuthContext.Provider value={authServices}>
         <ApiContext.Provider value={socketApi}>
-          <NavBar />
-          <hr />
-          <div className="container">
-            <div className="row d-flex justify-content-center">
-              <BrowserRouter>
-                <ToastContainer />
-                <Routes>
-                  <Route
-                    path={routes.homePage}
-                    element={loggedIn
-                      ? <Calendar isMobile={isMobile} />
-                      : <Navigate to={routes.loginPage} />}
-                  />
-                  <Route path={routes.loginPage} element={<Login />} />
-                  <Route path={routes.signupPage} element={<Signup />} />
-                  <Route path={routes.notFoundPage} element={<Page404 />} />
-                </Routes>
-              </BrowserRouter>
+          <MobileContext.Provider value={isMobile}>
+            <NavBar isAuth={isAuth} />
+            <hr />
+            <div className="container">
+              <div className="row d-flex justify-content-center">
+                <BrowserRouter>
+                  <ToastContainer />
+                  <Routes>
+                    <Route
+                      path={routes.homePage}
+                      element={isAuth
+                        ? <Calendar />
+                        : <Navigate to={routes.loginPage} />}
+                    />
+                    <Route path={routes.loginPage} element={<Login />} />
+                    <Route path={routes.signupPage} element={<Signup />} />
+                    <Route path={routes.notFoundPage} element={<Page404 />} />
+                  </Routes>
+                </BrowserRouter>
+              </div>
             </div>
-          </div>
-          <hr className="mb-4" />
+            <hr className="mb-4" />
+          </MobileContext.Provider>
         </ApiContext.Provider>
       </AuthContext.Provider>
     </Provider>

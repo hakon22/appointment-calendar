@@ -4,9 +4,11 @@ import routes from '../routes.js';
 
 export const fetchLoading = createAsyncThunk(
   'calendar/fetchLoading',
-  async () => {
-    const res = await axios.get(routes.all);
-    return res.data;
+  async (token) => {
+    const response = await axios.get(routes.auth, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data;
   },
 );
 
@@ -33,8 +35,7 @@ const calendarSlice = createSlice({
         state.loadingStatus = 'loading';
         state.error = null;
       })
-      .addCase(fetchLoading.fulfilled, (state, { payload }) => {
-        calendarAdapter.addMany(state, payload);
+      .addCase(fetchLoading.fulfilled, (state) => {
         state.loadingStatus = 'finish';
         state.error = null;
       })
