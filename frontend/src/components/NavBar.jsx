@@ -1,24 +1,31 @@
 import { useTranslation } from 'react-i18next';
 import { useContext } from 'react';
+import { useDispatch } from 'react-redux';
+import { useNavigate, Link } from 'react-router-dom';
 import { Navbar, Container, Button } from 'react-bootstrap';
 import { AuthContext } from './Context.jsx';
+import { removeToken } from '../slices/loginSlice.js';
 import routes from '../routes.js';
 
-const NavBar = ({ isAuth }) => {
+const NavBar = ({ loggedIn }) => {
   const { t } = useTranslation();
+  const dispatch = useDispatch();
   const { logOut } = useContext(AuthContext);
+  const navigate = useNavigate();
   return (
     <Navbar className="bg-body-tertiary">
       <Container>
-        <Navbar.Brand href={routes.homePage}>{t('navBar.title')}</Navbar.Brand>
+        <Link className="navbar-brand" to={routes.homePage}>{t('navBar.title')}</Link>
         <Navbar.Toggle />
         <Navbar.Collapse className="justify-content-end">
           <Navbar.Text>
-            {isAuth && (
+            {loggedIn && (
             <Button
               variant="primary"
               onClick={() => {
                 logOut();
+                dispatch(removeToken());
+                navigate(routes.loginPage);
               }}
             >
               {t('navBar.exit')}

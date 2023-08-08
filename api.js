@@ -1,12 +1,10 @@
 const express = require('express');
-const bodyParser = require('body-parser');
 const passport = require('passport');
-const Auth = require('./authentication/Auth.js');
+const { Auth } = require('./authentication/Auth.js');
 const Date_Times = require('./db/tables/Date_Times.js');
 const Users = require('./db/tables/Users.js');
 
 const router = express.Router();
-const jsonParser = bodyParser.json();
 
 router.post('/api/date-add', async (req, res) => {
   try {
@@ -22,8 +20,6 @@ router.post('/api/date-add', async (req, res) => {
 router.post('/api/signup', Auth.signup);
 
 router.post('/api/login', Auth.login);
-
-// router.post('/api/login', passport.authenticate('jwt', { session: false }), Auth.login);
 
 router.delete('/api/data-delete/:id', async (req, res) => {
   try {
@@ -71,13 +67,35 @@ router.get('/api/date-time/:date', async (req, res) => {
   }
 });
 
-router.get('/api/role/:email', passport.authenticate('jwt', { session: false }), async (req, res) => {
+router.get('/api/get-role', passport.authenticate('jwt-refresh', { session: false }), async (req, res) => {
   try {
-    const todo = await Users.findOne({
-      attributes: ['role'],
-      where: { email },
+    const { dataValues: { id, username, role, refresh_token }, token, refreshToken } = req.user;
+    const oldRefreshToken = req.get('Authorization').split(' ')[1];
+    if (refresh_token) {
+      const newRefreshTokens = refresh_token.filter((token) => token !== oldRefreshToken);
+      newRefreshTokens.push(refreshToken);
+      await Users.update({ refresh_token: newRefreshTokens }, { where: { id } });
+    }
+    res.status(200).send({ id, username, role, token, refreshToken });
+  } catch (e) {
+    console.log(e);
+    res.sendStatus(500);
+  }
+});
+
+router.post('/api/delete-auth', async (req, res) => {
+  try {
+    const { id, refreshToken } = req.body;
+    const { dataValues: { refresh_token } } = await Users.findOne({
+      attributes: ['refresh_token'],
+      where: { id },
     });
-    res.status(200).send(todo);
+    if (refresh_token) {
+      const refreshTokens = refresh_token.filter((token) => token !== refreshToken);
+      const newRefreshTokens = refreshTokens.length > 0 ? refreshTokens : null;
+      await Users.update({ refresh_token: newRefreshTokens }, { where: { id } });
+    }
+    res.json({ status: 'Tokens has been deleted' });
   } catch (e) {
     console.log(e);
     res.sendStatus(500);
@@ -86,10 +104,10 @@ router.get('/api/role/:email', passport.authenticate('jwt', { session: false }),
 
 router.get('/api/auth', passport.authenticate('jwt', { session: false }), async (req, res) => {
   try {
-    res.json({ status: 'ok' });
+    res.status(200).json({ status: 'ok' });
   } catch (e) {
     console.log(e);
-    res.sendStatus(500);
+    res.sendStatus(401);
   }
 });
 

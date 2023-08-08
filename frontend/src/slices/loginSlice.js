@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { createSlice, createEntityAdapter, createAsyncThunk } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import routes from '../routes.js';
 
 export const fetchLogin = createAsyncThunk(
@@ -10,11 +10,36 @@ export const fetchLogin = createAsyncThunk(
   },
 );
 
-const loginAdapter = createEntityAdapter();
+export const fetchToken = createAsyncThunk(
+  'login/fetchToken',
+  async (token) => {
+    const response = await axios.get(routes.auth, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data;
+  },
+);
 
 const loginSlice = createSlice({
   name: 'login',
   initialState: { loadingStatus: 'idle', error: null },
+  reducers: {
+    removeToken: (state) => {
+      const entries = Object.keys(state);
+      entries.forEach((key) => {
+        if (key !== 'loadingStatus') {
+          state[key] = null;
+        }
+      });
+    },
+    addTokenStorage: (state, { payload }) => {
+      if (payload.refreshToken) {
+        const entries = Object.entries(payload);
+        entries.forEach(([key, value]) => { state[key] = value; });
+        state.error = null;
+      }
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchLogin.pending, (state) => {
@@ -22,20 +47,35 @@ const loginSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchLogin.fulfilled, (state, { payload }) => {
-        const { token, username } = payload;
-        if (token) {
-          state.token = token;
-          state.username = username;
+        if (payload.token) {
+          const entries = Object.entries(payload);
+          entries.forEach(([key, value]) => { state[key] = value; });
         }
-        state.loadingStatus = 'idle';
+        state.loadingStatus = 'finish';
         state.error = null;
       })
       .addCase(fetchLogin.rejected, (state, action) => {
+        state.loadingStatus = 'failed';
+        state.error = action.error.message;
+      })
+      .addCase(fetchToken.pending, (state) => {
+        state.loadingStatus = 'loading';
+        state.error = null;
+      })
+      .addCase(fetchToken.fulfilled, (state, { payload }) => {
+        if (payload.token) {
+          const entries = Object.entries(payload);
+          entries.forEach(([key, value]) => { state[key] = value; });
+        }
+        state.loadingStatus = 'finish';
+        state.error = null;
+      })
+      .addCase(fetchToken.rejected, (state, action) => {
         state.loadingStatus = 'failed';
         state.error = action.error.message;
       });
   },
 });
 
-export const selectors = loginAdapter.getSelectors((state) => state.login);
+export const { removeToken, addTokenStorage } = loginSlice.actions;
 export default loginSlice.reducer;

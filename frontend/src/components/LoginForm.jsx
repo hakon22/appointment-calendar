@@ -29,16 +29,20 @@ const LoginForm = () => {
     initialValues: {
       email: '',
       password: '',
+      save: false,
     },
     validationSchema: loginValidation,
     onSubmit: async (values, { setFieldError, setSubmitting }) => {
       try {
         const {
           payload: {
-            token, message, code,
+            token, refreshToken, message, code,
           },
         } = await dispatch(fetchLogin(values));
         if (token) {
+          if (values.save) {
+            window.localStorage.setItem('refresh_token', refreshToken);
+          }
           logIn();
         } else if (code === 1) {
           setSubmitting(false);
@@ -56,6 +60,11 @@ const LoginForm = () => {
     },
   });
 
+  const formClass = (field) => cn('form-floating', {
+    'mb-3': !formik.errors[field],
+    'mb-3-5': formik.errors[field] && formik.touched[field],
+  });
+
   return (
     <Form
       onSubmit={formik.handleSubmit}
@@ -64,10 +73,7 @@ const LoginForm = () => {
       })}
     >
       <Form.Group
-        className={cn('form-floating', {
-          'mb-3': !formik.errors.email,
-          'mb-5': formik.errors.email && formik.touched.email,
-        })}
+        className={formClass('email')}
         controlId="email"
       >
         <FloatingLabel label={t('loginForm.email')} controlId="email">
@@ -90,15 +96,12 @@ const LoginForm = () => {
         </FloatingLabel>
       </Form.Group>
       <Form.Group
-        className={cn('form-floating', {
-          'mb-3': !formik.errors.password,
-          'mb-5': formik.errors.password && formik.touched.password,
-        })}
+        className={formClass('password')}
         controlId="password"
       >
         <FloatingLabel label={t('loginForm.password')} controlId="password">
           <Form.Control
-            className="mb-2"
+            className="mb-3"
             onChange={formik.handleChange}
             value={formik.values.password}
             disabled={formik.isSubmitting}
@@ -114,6 +117,16 @@ const LoginForm = () => {
           </Form.Control.Feedback>
         </FloatingLabel>
       </Form.Group>
+      <Form.Check
+        className="mb-2 text-start"
+        onChange={formik.handleChange}
+        disabled={formik.isSubmitting}
+        onBlur={formik.handleBlur}
+        type="checkbox"
+        id="save"
+        name="save"
+        label={t('loginForm.checkbox')}
+      />
       <Button variant="outline-primary" className="w-100" type="submit">{t('loginForm.submit')}</Button>
     </Form>
   );

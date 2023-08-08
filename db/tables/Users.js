@@ -24,7 +24,9 @@ const Users = db.define(
     role: {
       type: DataTypes.STRING,
       allowNull: false,
-      defaultValue: 'member',
+    },
+    refresh_token: {
+      type: DataTypes.ARRAY(DataTypes.TEXT),
     },
   },
 );

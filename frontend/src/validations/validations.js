@@ -11,6 +11,7 @@ setLocale({
     min: () => ('validation.requirements'),
     max: () => ('validation.requirements'),
     length: () => ('validation.phone'),
+    email: () => ('validation.email'),
   },
 });
 

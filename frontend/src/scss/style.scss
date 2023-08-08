@@ -1,12 +1,3 @@
-:root {
-//  --bs-card-bg: #0d6efd;
-//  --bs-emphasis-color: #fff;
-}
-
-.transition {
-  transition: 0.5s;
-}
-
 .anim-show {
 	opacity: 0;
 	transition: 1s;
@@ -14,8 +5,17 @@
   animation-fill-mode: forwards;
 }
 
-.vertical-align {
-  vertical-align: -.2em;
+.react-calendar button {
+  &.react-calendar__tile {
+    border-radius: 50%;
+    .open-date {
+      border: 1px solid green;
+    }
+  }
+}
+
+.mb-3-5 {
+  margin-bottom: 2.2em;
 }
 
 @keyframes show {

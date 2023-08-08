@@ -41,7 +41,11 @@ const SignupForm = () => {
         const { data: { message, code } } = await axios.post(routes.signup, values);
         if (code === 5) {
           const { email, password } = values;
-          const { payload: { token } } = await dispatch(fetchLogin({ email, password }));
+          const { payload: { token } } = await dispatch(fetchLogin({
+            email,
+            password,
+            save: false,
+          }));
           if (token) {
             logIn();
           } else {
@@ -58,6 +62,11 @@ const SignupForm = () => {
     },
   });
 
+  const formClass = (field) => cn('form-floating', {
+    'mb-3': !formik.errors[field],
+    'mb-3-5': formik.errors[field] && formik.touched[field],
+  });
+
   return (
     <Form
       onSubmit={formik.handleSubmit}
@@ -66,10 +75,7 @@ const SignupForm = () => {
       })}
     >
       <Form.Group
-        className={cn('form-floating', {
-          'mb-3': !formik.errors.username,
-          'mb-5': formik.errors.username && formik.touched.username,
-        })}
+        className={formClass('username')}
         controlId="username"
       >
         <FloatingLabel label={t('signupForm.username')} controlId="username">
@@ -92,10 +98,7 @@ const SignupForm = () => {
         </FloatingLabel>
       </Form.Group>
       <Form.Group
-        className={cn('form-floating', {
-          'mb-3': !formik.errors.email,
-          'mb-5': formik.errors.email && formik.touched.email,
-        })}
+        className={formClass('email')}
         controlId="email"
       >
         <FloatingLabel label={t('signupForm.email')} controlId="email">
@@ -117,10 +120,7 @@ const SignupForm = () => {
         </FloatingLabel>
       </Form.Group>
       <Form.Group
-        className={cn('form-floating', {
-          'mb-3': !formik.errors.phone,
-          'mb-5': formik.errors.phone && formik.touched.phone,
-        })}
+        className={formClass('phone')}
         controlId="phone"
       >
         <FloatingLabel label={t('signupForm.phone')} controlId="phone">
@@ -144,10 +144,7 @@ const SignupForm = () => {
         </FloatingLabel>
       </Form.Group>
       <Form.Group
-        className={cn('form-floating', {
-          'mb-3': !formik.errors.password,
-          'mb-5': formik.errors.password && formik.touched.password,
-        })}
+        className={formClass('password')}
         controlId="password"
       >
         <FloatingLabel label={t('signupForm.password')} controlId="password">
@@ -169,10 +166,7 @@ const SignupForm = () => {
         </FloatingLabel>
       </Form.Group>
       <Form.Group
-        className={cn('form-floating', {
-          'mb-3': !formik.errors.confirmPassword,
-          'mb-5': formik.errors.confirmPassword && formik.touched.confirmPassword,
-        })}
+        className={formClass('confirmPassword')}
         controlId="confirmPassword"
       >
         <FloatingLabel label={t('signupForm.confirm')} controlId="confirmPassword">

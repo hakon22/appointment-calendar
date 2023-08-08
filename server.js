@@ -21,20 +21,21 @@ app.use(cors());
 
 app.use(passport.initialize());
 require('./authentication/tokenChecker.js')(passport);
+require('./authentication/refreshTokenChecker.js')(passport);
 app.use(router);
 
 app.get('*', (req, res) => {
   res.sendFile(path.join(buildPath, 'index.html'));
 });
 
-io.on('connection', (socket) => {
+/* io.on('connection', (socket) => {
   console.log('user connected');
 
   socket.on('addLike', (like) => io.emit('addLike', like));
   socket.on('removeLike', (like) => io.emit('removeLike', like));
   socket.on('addData', (article) => io.emit('addData', article));
   socket.on('removeData', (article) => io.emit('removeData', article));
-});
+}); */
 
 server.listen(port, () => {
   console.log(`Server is online on port: ${port}`);
