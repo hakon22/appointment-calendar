@@ -32,28 +32,6 @@ router.delete('/api/data-delete/:id', async (req, res) => {
   }
 });
 
-router.get('/api/data-addLike/:id', async (req, res) => {
-  try {
-    const { id } = req.params;
-    await Date_Times.increment('likes', { where: { id } });
-    res.status(200).sendStatus(201);
-  } catch (e) {
-    console.log(e);
-    res.sendStatus(500);
-  }
-});
-
-router.get('/api/data-removeLike/:id', async (req, res) => {
-  try {
-    const { id } = req.params;
-    await Date_Times.decrement('likes', { where: { id } });
-    res.status(200).sendStatus(201);
-  } catch (e) {
-    console.log(e);
-    res.sendStatus(500);
-  }
-});
-
 router.get('/api/date-time/:date', async (req, res) => {
   try {
     const todo = await Date_Times.findAll({
@@ -71,15 +49,18 @@ router.get('/api/get-role', passport.authenticate('jwt-refresh', { session: fals
   try {
     const { dataValues: { id, username, role, refresh_token }, token, refreshToken } = req.user;
     const oldRefreshToken = req.get('Authorization').split(' ')[1];
-    if (refresh_token) {
+    const availabilityRefresh = refresh_token.find((token) => token === oldRefreshToken);
+    if (availabilityRefresh) {
       const newRefreshTokens = refresh_token.filter((token) => token !== oldRefreshToken);
       newRefreshTokens.push(refreshToken);
       await Users.update({ refresh_token: newRefreshTokens }, { where: { id } });
-    }
+    } else {
+      throw new Error('Ошибка доступа');
+    } 
     res.status(200).send({ id, username, role, token, refreshToken });
   } catch (e) {
     console.log(e);
-    res.sendStatus(500);
+    res.sendStatus(401);
   }
 });
 

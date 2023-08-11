@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { useContext } from 'react';
 import { useDispatch } from 'react-redux';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Navbar, Container, Button } from 'react-bootstrap';
 import { AuthContext } from './Context.jsx';
 import { removeToken } from '../slices/loginSlice.js';
@@ -11,7 +11,6 @@ const NavBar = ({ loggedIn }) => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
   const { logOut } = useContext(AuthContext);
-  const navigate = useNavigate();
   return (
     <Navbar className="bg-body-tertiary">
       <Container>
@@ -25,7 +24,6 @@ const NavBar = ({ loggedIn }) => {
               onClick={() => {
                 logOut();
                 dispatch(removeToken());
-                navigate(routes.loginPage);
               }}
             >
               {t('navBar.exit')}

@@ -21,12 +21,6 @@ const calendarSlice = createSlice({
   }),
   reducers: {
     addData: calendarAdapter.addOne,
-    addLike: (state, { payload }) => {
-      state.entities[payload].likes += 1;
-    },
-    removeLike: (state, { payload }) => {
-      state.entities[payload].likes -= 1;
-    },
     removeData: calendarAdapter.removeOne,
   },
   extraReducers: (builder) => {

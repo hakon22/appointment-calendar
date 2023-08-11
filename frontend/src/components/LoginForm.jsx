@@ -1,29 +1,20 @@
 import { useFormik } from 'formik';
 import { useTranslation } from 'react-i18next';
-import { useEffect, useContext } from 'react';
+import { useContext } from 'react';
 import { useDispatch } from 'react-redux';
 import { Button, Form, FloatingLabel } from 'react-bootstrap';
 import cn from 'classnames';
-import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { fetchLogin } from '../slices/loginSlice.js';
 import { AuthContext, MobileContext } from './Context.jsx';
 import { loginValidation } from '../validations/validations.js';
-import routes from '../routes.js';
 
 const LoginForm = () => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { loggedIn, logIn } = useContext(AuthContext);
+  const { logIn } = useContext(AuthContext);
   const isMobile = useContext(MobileContext);
   const notify = (text, type) => toast[type](text);
-
-  useEffect(() => {
-    if (loggedIn) {
-      navigate(routes.homePage);
-    }
-  }, [loggedIn, navigate]);
 
   const formik = useFormik({
     initialValues: {

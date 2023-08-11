@@ -20,6 +20,40 @@ export const fetchToken = createAsyncThunk(
   },
 );
 
+export const fetchTokenStorage = createAsyncThunk(
+  'login/fetchTokenStorage',
+  async (refreshTokenStorage) => {
+    const response = await axios.get(routes.checkRole, {
+      headers: { Authorization: `Bearer ${refreshTokenStorage}` },
+    });
+    return response.data;
+  },
+);
+
+export const updateTokens = createAsyncThunk(
+  'login/updateTokens',
+  async (refresh) => {
+    const refreshTokenStorage = window.localStorage.getItem('refresh_token');
+    if (refreshTokenStorage) {
+      const { data } = await axios.get(routes.checkRole, {
+        headers: { Authorization: `Bearer ${refreshTokenStorage}` },
+      });
+      if (data.refreshToken) {
+        window.localStorage.setItem('refresh_token', data.refreshToken);
+        return data;
+      }
+    } else {
+      const { data } = await axios.get(routes.checkRole, {
+        headers: { Authorization: `Bearer ${refresh}` },
+      });
+      if (data.refreshToken) {
+        return data;
+      }
+    }
+    return null;
+  },
+);
+
 const loginSlice = createSlice({
   name: 'login',
   initialState: { loadingStatus: 'idle', error: null },
@@ -62,7 +96,38 @@ const loginSlice = createSlice({
         state.loadingStatus = 'loading';
         state.error = null;
       })
-      .addCase(fetchToken.fulfilled, (state, { payload }) => {
+      .addCase(fetchToken.fulfilled, (state) => {
+        state.loadingStatus = 'finish';
+        state.error = null;
+      })
+      .addCase(fetchToken.rejected, (state, action) => {
+        state.loadingStatus = 'failed';
+        state.error = action.error.message;
+      })
+      .addCase(fetchTokenStorage.pending, (state) => {
+        state.loadingStatus = 'loading';
+        state.error = null;
+      })
+      .addCase(fetchTokenStorage.fulfilled, (state, { payload }) => {
+        if (payload.refreshToken) {
+          if (window.localStorage.getItem('refresh_token')) {
+            window.localStorage.setItem('refresh_token', payload.refreshToken);
+          }
+          const entries = Object.entries(payload);
+          entries.forEach(([key, value]) => { state[key] = value; });
+        }
+        state.loadingStatus = 'finish';
+        state.error = null;
+      })
+      .addCase(fetchTokenStorage.rejected, (state, action) => {
+        state.loadingStatus = 'failed';
+        state.error = action.error.message;
+      })
+      .addCase(updateTokens.pending, (state) => {
+        state.loadingStatus = 'loading';
+        state.error = null;
+      })
+      .addCase(updateTokens.fulfilled, (state, { payload }) => {
         if (payload.token) {
           const entries = Object.entries(payload);
           entries.forEach(([key, value]) => { state[key] = value; });
@@ -70,7 +135,7 @@ const loginSlice = createSlice({
         state.loadingStatus = 'finish';
         state.error = null;
       })
-      .addCase(fetchToken.rejected, (state, action) => {
+      .addCase(updateTokens.rejected, (state, action) => {
         state.loadingStatus = 'failed';
         state.error = action.error.message;
       });

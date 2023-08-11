@@ -2,8 +2,8 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const Users = require('../db/tables/Users.js');
 
-const generateAccessToken = (id, email) => jwt.sign({ id, email }, 'putin', { expiresIn: 10 });
-const generateRefreshToken = (id, email) => jwt.sign({ id, email }, 'refreshPutin', { expiresIn: "30d" });
+const generateAccessToken = (id, email) => jwt.sign({ id, email }, 'putin', { expiresIn: '10m' });
+const generateRefreshToken = (id, email) => jwt.sign({ id, email }, 'refreshPutin', { expiresIn: '30d' });
 
 const adminEmail = ['hakon1@mail.ru'];
 
@@ -28,7 +28,7 @@ class Authentication {
 
   async login(req, res) {
     try {
-      const { email, password, save } = req.body;
+      const { email, password } = req.body;
       const user = await Users.findOne({ where: { email } });
       if (!user) {
         return res.json({ message: 'Такой пользователь не зарегистрирован', code: 1 });
@@ -44,13 +44,13 @@ class Authentication {
         id,
         role,
       } = user;
-      if (save) {
-        if (!user.refresh_token) {
-          await Users.update({ refresh_token: [refreshToken] }, { where: { email } });
-        } else {
-          user.refresh_token.push(refreshToken);
-          await Users.update({ refresh_token: user.refresh_token }, { where: { email } });
-        }
+      if (!user.refresh_token) {
+        await Users.update({ refresh_token: [refreshToken] }, { where: { email } });
+      } else if (user.refresh_token.length < 3) {
+        user.refresh_token.push(refreshToken);
+        await Users.update({ refresh_token: user.refresh_token }, { where: { email } });
+      } else {
+        await Users.update({ refresh_token: [refreshToken] }, { where: { email } });
       }
       res.status(200).send({ token, refreshToken, username, id, role });
     } catch (e) {
