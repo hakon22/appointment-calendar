@@ -14,7 +14,7 @@ const Signup = () => {
           <SignupForm />
         </Card.Body>
         <Card.Footer>
-          <span>{t('haveAccount')}</span>
+          <span>{t('signupForm.haveAccount')}</span>
           <Link to={routes.loginPage}>{t('loginForm.submit')}</Link>
         </Card.Footer>
       </Card>

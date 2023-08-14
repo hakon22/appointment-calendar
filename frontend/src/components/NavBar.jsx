@@ -12,7 +12,7 @@ const NavBar = ({ loggedIn }) => {
   const dispatch = useDispatch();
   const { logOut } = useContext(AuthContext);
   return (
-    <Navbar className="bg-body-tertiary">
+    <Navbar bg="white">
       <Container>
         <Link className="navbar-brand" to={routes.homePage}>{t('navBar.title')}</Link>
         <Navbar.Toggle />

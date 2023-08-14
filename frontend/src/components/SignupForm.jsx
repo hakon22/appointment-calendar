@@ -1,31 +1,23 @@
 import { useFormik } from 'formik';
+import { useContext } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useDispatch } from 'react-redux';
-import { useEffect, useContext } from 'react';
-import { Button, Form, FloatingLabel } from 'react-bootstrap';
+import {
+  Button, Form, FloatingLabel, Image,
+} from 'react-bootstrap';
 import InputMask from 'react-input-mask';
 import { useNavigate } from 'react-router-dom';
-import { toast } from 'react-toastify';
 import cn from 'classnames';
 import axios from 'axios';
-import { fetchLogin } from '../slices/loginSlice.js';
-import { AuthContext, MobileContext } from './Context.jsx';
+import notify from '../utilities/toast.js';
 import { signupValidation } from '../validations/validations.js';
+import { MobileContext } from './Context.jsx';
+import { upperCase, lowerCase } from '../utilities/textTransform.js';
 import routes from '../routes.js';
 
 const SignupForm = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const dispatch = useDispatch();
-  const { loggedIn, logIn } = useContext(AuthContext);
   const isMobile = useContext(MobileContext);
-  const notify = (text, type) => toast[type](text);
-
-  useEffect(() => {
-    if (loggedIn) {
-      navigate(routes.homePage);
-    }
-  }, [loggedIn, navigate]);
 
   const formik = useFormik({
     initialValues: {
@@ -38,51 +30,41 @@ const SignupForm = () => {
     validationSchema: signupValidation,
     onSubmit: async (values, { setFieldError, setSubmitting }) => {
       try {
-        const { data: { message, code } } = await axios.post(routes.signup, values);
-        if (code === 5) {
-          const { email, password } = values;
-          const { payload: { token } } = await dispatch(fetchLogin({
-            email,
-            password,
-            save: false,
-          }));
-          if (token) {
-            logIn();
-          } else {
-            notify(t('toast.networkError'), 'error');
-          }
-        } else {
+        values.username = upperCase(values.username);
+        values.email = lowerCase(values.email);
+        const { data: { message, code, id } } = await axios.post(routes.signup, values);
+        if (code === 1) {
+          navigate(`${routes.activationUrlPage}${id}`);
+        } else if (code === 2) {
           setSubmitting(false);
           setFieldError('email', message);
+        } else if (!code) {
+          setSubmitting(false);
+          notify(t('toast.networkError'), 'error');
         }
       } catch (e) {
-        console.log(e);
         notify(t('toast.unknownError'), 'error');
+        console.log(e);
       }
     },
   });
 
-  const formClass = (field) => cn('form-floating', {
-    'mb-3': !formik.errors[field],
+  const formClass = (field) => cn('mb-3', {
     'mb-3-5': formik.errors[field] && formik.touched[field],
   });
 
   return (
-    <Form
-      onSubmit={formik.handleSubmit}
-      className={cn(('mx-auto'), {
-        'w-50': !isMobile,
-      })}
-    >
-      <Form.Group
-        className={formClass('username')}
-        controlId="username"
+    <div className="d-flex justify-content-center gap-5">
+      {!isMobile && <Image className="w-25 h-25 mt-12 me-4" src="./images/watermelon.svg" alt={t('signupForm.title')} roundedCircle />}
+      <Form
+        onSubmit={formik.handleSubmit}
+        className="col-12 col-md-5"
       >
-        <FloatingLabel label={t('signupForm.username')} controlId="username">
+
+        <FloatingLabel className={formClass('username')} label={t('signupForm.username')} controlId="username">
           <Form.Control
             autoFocus
             type="text"
-            className="mb-2"
             onChange={formik.handleChange}
             value={formik.values.username}
             disabled={formik.isSubmitting}
@@ -92,19 +74,14 @@ const SignupForm = () => {
             placeholder={t('signupForm.username')}
             required
           />
-          <Form.Control.Feedback type="invalid" tooltip placement="right">
+          <Form.Control.Feedback type="invalid" tooltip placement="right" className="anim-show">
             {t(formik.errors.username)}
           </Form.Control.Feedback>
         </FloatingLabel>
-      </Form.Group>
-      <Form.Group
-        className={formClass('email')}
-        controlId="email"
-      >
-        <FloatingLabel label={t('signupForm.email')} controlId="email">
+
+        <FloatingLabel className={formClass('email')} label={t('signupForm.email')} controlId="email">
           <Form.Control
             type="email"
-            className="mb-2"
             onChange={formik.handleChange}
             value={formik.values.email}
             disabled={formik.isSubmitting}
@@ -114,21 +91,16 @@ const SignupForm = () => {
             placeholder={t('signupForm.email')}
             required
           />
-          <Form.Control.Feedback type="invalid" tooltip placement="right">
+          <Form.Control.Feedback type="invalid" tooltip placement="right" className="anim-show">
             {t(formik.errors.email)}
           </Form.Control.Feedback>
         </FloatingLabel>
-      </Form.Group>
-      <Form.Group
-        className={formClass('phone')}
-        controlId="phone"
-      >
-        <FloatingLabel label={t('signupForm.phone')} controlId="phone">
+
+        <FloatingLabel className={formClass('phone')} label={t('signupForm.phone')} controlId="phone">
           <Form.Control
             as={InputMask}
             mask="+7 (999)-999-99-99"
             type="text"
-            className="mb-2"
             onChange={formik.handleChange}
             value={formik.values.phone}
             disabled={formik.isSubmitting}
@@ -138,18 +110,13 @@ const SignupForm = () => {
             placeholder={t('signupForm.phone')}
             required
           />
-          <Form.Control.Feedback type="invalid" tooltip placement="right">
+          <Form.Control.Feedback type="invalid" tooltip placement="right" className="anim-show">
             {t(formik.errors.phone)}
           </Form.Control.Feedback>
         </FloatingLabel>
-      </Form.Group>
-      <Form.Group
-        className={formClass('password')}
-        controlId="password"
-      >
-        <FloatingLabel label={t('signupForm.password')} controlId="password">
+
+        <FloatingLabel className={formClass('password')} label={t('signupForm.password')} controlId="password">
           <Form.Control
-            className="mb-2"
             onChange={formik.handleChange}
             value={formik.values.password}
             disabled={formik.isSubmitting}
@@ -160,18 +127,13 @@ const SignupForm = () => {
             placeholder={t('signupForm.password')}
             required
           />
-          <Form.Control.Feedback type="invalid" tooltip placement="right">
+          <Form.Control.Feedback type="invalid" tooltip placement="right" className="anim-show">
             {t(formik.errors.password)}
           </Form.Control.Feedback>
         </FloatingLabel>
-      </Form.Group>
-      <Form.Group
-        className={formClass('confirmPassword')}
-        controlId="confirmPassword"
-      >
-        <FloatingLabel label={t('signupForm.confirm')} controlId="confirmPassword">
+
+        <FloatingLabel className={formClass('confirmPassword')} label={t('signupForm.confirm')} controlId="confirmPassword">
           <Form.Control
-            className="mb-2"
             onChange={formik.handleChange}
             value={formik.values.confirmPassword}
             disabled={formik.isSubmitting}
@@ -182,13 +144,14 @@ const SignupForm = () => {
             placeholder={t('signupForm.confirm')}
             required
           />
-          <Form.Control.Feedback type="invalid" tooltip placement="right">
+          <Form.Control.Feedback type="invalid" tooltip placement="right" className="anim-show">
             {t('signupForm.mustMatch')}
           </Form.Control.Feedback>
         </FloatingLabel>
-      </Form.Group>
-      <Button variant="outline-primary" className="w-100" type="submit">{t('signupForm.submit')}</Button>
-    </Form>
+
+        <Button variant="outline-primary" className="w-100" type="submit">{t('signupForm.submit')}</Button>
+      </Form>
+    </div>
   );
 };
 

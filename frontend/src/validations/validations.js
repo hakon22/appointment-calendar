@@ -54,3 +54,11 @@ export const signupValidation = yup.object().shape({
     .string()
     .test('confirmPassword', (value, context) => value === context.parent.password),
 });
+
+export const activationValidation = yup.object().shape({
+  code: yup
+    .string()
+    .required()
+    .transform((value) => value.replace(/[^\d]/g, ''))
+    .test('code', 'Введите 4 цифры', (value) => value.length === 4),
+});

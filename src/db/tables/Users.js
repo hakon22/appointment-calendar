@@ -28,6 +28,9 @@ const Users = db.define(
     refresh_token: {
       type: DataTypes.ARRAY(DataTypes.TEXT),
     },
+    code_activation: {
+      type: DataTypes.INTEGER,
+    },
   },
 );
 

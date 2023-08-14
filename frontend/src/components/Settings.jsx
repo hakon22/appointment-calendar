@@ -8,7 +8,7 @@ import ApiContext, { MobileContext } from './Context.jsx';
 import App from './App.jsx';
 
 const Settings = () => {
-  const isMobile = window.screen.width <= 768;
+  const isMobile = window.screen.width < 768;
   const socket = io();
   const socketConnect = useCallback((param, arg) => {
     socket.emit(param, arg);

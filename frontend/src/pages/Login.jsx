@@ -33,7 +33,7 @@ const Login = () => {
             <LoginForm />
           </Card.Body>
           <Card.Footer>
-            <span>{t('notAccount')}</span>
+            <span>{t('loginForm.notAccount')}</span>
             <Link to={routes.signupPage}>{t('signupForm.title')}</Link>
           </Card.Footer>
         </Card>

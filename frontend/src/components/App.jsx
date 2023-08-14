@@ -2,17 +2,18 @@ import {
   useMemo, useState, useEffect, useCallback,
 } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { toast } from 'react-toastify';
 import { useTranslation } from 'react-i18next';
 import {
   BrowserRouter, Routes, Route, Navigate,
 } from 'react-router-dom';
 import axios from 'axios';
+import notify from '../utilities/toast.js';
 import Calendar from '../pages/Calendar.jsx';
 import NavBar from './NavBar.jsx';
 import Page404 from '../pages/Page404.jsx';
 import Login from '../pages/Login.jsx';
 import Signup from '../pages/Signup.jsx';
+import Activation from '../pages/Activation.jsx';
 import { AuthContext } from './Context.jsx';
 import routes from '../routes.js';
 import { fetchTokenStorage } from '../slices/loginSlice.js';
@@ -35,7 +36,6 @@ const App = () => {
   }, [error, id]);
 
   const authServices = useMemo(() => ({ loggedIn, logIn, logOut }), [loggedIn, logOut]);
-  const notify = (text, type) => toast[type](text);
 
   useEffect(() => {
     const tokenStorage = window.localStorage.getItem('refresh_token');
@@ -52,9 +52,14 @@ const App = () => {
 
   useEffect(() => {
     if (error) {
+      if (parseInt(error.match(/\d+/), 10) === 401) {
+        logOut();
+        notify(t('toast.authError'), 'error');
+      }
+      if (parseInt(error.match(/\d+/), 10) === 500) {
+        notify(t('toast.unknownError'), 'error');
+      }
       console.log(error);
-      logOut();
-      notify(t('toast.authError'), 'error');
     }
   }, [error, logOut, t]);
 
@@ -74,6 +79,7 @@ const App = () => {
               />
               <Route path={routes.loginPage} element={<Login />} />
               <Route path={routes.signupPage} element={<Signup />} />
+              <Route path={routes.activationPage} element={<Activation />} />
               <Route path={routes.notFoundPage} element={<Page404 />} />
             </Routes>
           </div>

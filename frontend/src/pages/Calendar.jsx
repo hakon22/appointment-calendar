@@ -30,11 +30,11 @@ const Calendar = () => {
 
   return (
     <>
-      <div className="col-12 col-lg-4 mb-3">
+      <div className="col-12 col-md-4 mb-3">
         <Stack direction="horizontal">
           <Stack>
             <Alert variant="primary" className="text-center">
-              {t('calendar.alert')}
+              {isAdmin() ? t('calendar.adminAlert') : t('calendar.alert')}
             </Alert>
             <CalendarApp
               className="w-100"
@@ -46,7 +46,7 @@ const Calendar = () => {
           {isMobile ? null : <div className="vr ms-4 me-5" style={{ width: 2 }} />}
         </Stack>
       </div>
-      <div className="col-12 col-lg-8 mb-3">
+      <div className="col-12 col-md-8 mb-3">
         {isAdmin() ? <AdminPanel /> : <MemberPanel />}
       </div>
     </>

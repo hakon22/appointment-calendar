@@ -4,14 +4,13 @@ const cors = require('cors');
 const http = require('http');
 const { Server } = require("socket.io");
 const passport = require('passport');
-const router = require('./api.js');
-const { connectToDb } = require('./db/connect.js');
+const router = require('./src/api.js');
+const { connectToDb } = require('./src/db/connect.js');
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
 const port = process.env.PORT || 3001;
-
 
 const buildPath = path.join(__dirname, 'frontend', 'build');
 
@@ -20,8 +19,8 @@ app.use(express.json());
 app.use(cors());
 
 app.use(passport.initialize());
-require('./authentication/tokenChecker.js')(passport);
-require('./authentication/refreshTokenChecker.js')(passport);
+require('./src/authentication/tokenChecker.js')(passport);
+require('./src/authentication/refreshTokenChecker.js')(passport);
 app.use(router);
 
 app.get('*', (req, res) => {
