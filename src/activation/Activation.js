@@ -65,6 +65,34 @@ class Activation {
       res.sendStatus(500);
     }
   }
+
+  async changeEmail(req, res) {
+    try {
+      const { id, email } = req.body;
+      const users = await Users.findAll({
+        attributes: ['id', 'username', 'email', 'code_activation'],
+      });
+      const user = users.filter((user) => user.id === id);
+      console.log(user);
+      if (user.code_activation) {
+        const emails = users.filter((user) => user.email);
+        if (!emails.includes(email)) {
+          const newCode = codeGen();
+          const { username } = user;
+          await Users.update({ email, code_activation: newCode }, { where: { id } });
+          await sendMail(id, username, email, newCode);
+          res.status(200).send({ code: 1 });
+        } else {
+          res.status(200).send({ code: 2, message: 'Такой email уже существует' });
+        }
+      } else {
+        res.status(202).send(false);
+      }
+    } catch (e) {
+      console.log(e);
+      res.sendStatus(500);
+    }
+  }
 }
 
 const Act = new Activation();

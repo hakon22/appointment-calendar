@@ -86,7 +86,7 @@ const ActivationForm = ({ id }) => {
   return (
     <div className={cn('d-flex justify-content-center align-items-center gap-3', {
       'flex-column': isMobile,
-      'gap-5': !isMobile,
+      'gap-1': !isMobile,
     })}
     >
       <Image
@@ -98,10 +98,10 @@ const ActivationForm = ({ id }) => {
         alt={t('loginForm.title')}
         roundedCircle
       />
-      <ModalChangeActivationEmail email={email} show={show} onHide={modalClose} />
+      <ModalChangeActivationEmail id={id} email={email} show={show} onHide={modalClose} />
       <Form
         onSubmit={formik.handleSubmit}
-        className={cn('col-12 col-lg-6 mb-4', {
+        className={cn('col-12 col-md-7 mb-4', {
           'mt-4': !isMobile,
         })}
       >
@@ -138,12 +138,12 @@ const ActivationForm = ({ id }) => {
         { timer !== '00'
           ? (<p className="text-muted mb-3-5">{`${t('activationForm.timerText')}${timer}`}</p>)
           : (
-            <Button onClick={repeatEmail} variant="warning" className="mb-3-5 anim-show" size="sm">
+            <Button onClick={repeatEmail} variant="warning" className="mb-3-5 anim-show" size="sm" disabled={formik.isSubmitting}>
               <EnvelopeAt />
               {t('activationForm.timerButton')}
             </Button>
           )}
-        <Button variant="outline-primary" type="submit">{t('activationForm.submit')}</Button>
+        <Button variant="outline-primary" type="submit" disabled={formik.isSubmitting}>{t('activationForm.submit')}</Button>
       </Form>
     </div>
   );

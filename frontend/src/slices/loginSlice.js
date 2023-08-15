@@ -81,6 +81,9 @@ const loginSlice = createSlice({
         state.error = null;
       }
     },
+    changeEmailActivation: (state, { payload }) => {
+      state.email = payload;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -165,5 +168,5 @@ const loginSlice = createSlice({
   },
 });
 
-export const { removeToken, addTokenStorage } = loginSlice.actions;
+export const { removeToken, addTokenStorage, changeEmailActivation } = loginSlice.actions;
 export default loginSlice.reducer;

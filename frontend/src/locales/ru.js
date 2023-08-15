@@ -50,6 +50,7 @@ export default {
     toast: {
       activationSuccess: 'Аккаунт успешно активирован',
       emailSuccess: 'Сообщение успешно отправлено',
+      changeEmailSuccess: 'Почта успешно обновлена',
       networkError: 'Ошибка соединения',
       unknownError: 'Неизвестная ошибка',
       authError: 'Ошибка аутентификации',

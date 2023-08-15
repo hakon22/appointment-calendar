@@ -1,27 +1,42 @@
 import { useRef } from 'react';
 import { Form, Modal, Button } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useFormik } from 'formik';
-import { signupValidation } from '../validations/validations.js';
+import axios from 'axios';
+import routes from '../routes.js';
+import notify from '../utilities/toast.js';
+import { emailValidation } from '../validations/validations.js';
 
-const ModalChangeActivationEmail = ({ email, onHide, show }) => {
+const ModalChangeActivationEmail = ({
+  id, email, onHide, show,
+}) => {
   const { t } = useTranslation();
   const input = useRef();
+  const navigate = useNavigate();
 
   const formik = useFormik({
     initialValues: {
       email,
     },
-    validationSchema: signupValidation,
-    onSubmit: (values, { setSubmitting, setTouched }) => {
-      if (!email) {
-        formik.values.email = email;
-        setSubmitting(false);
-        setTouched({ email: true });
-        return;
+    validationSchema: emailValidation,
+    onSubmit: async (values, { setFieldError, setSubmitting }) => {
+      try {
+        const data = await axios.post(routes.activationChangeEmail, { ...values, id });
+        if (data.code === 1) {
+          onHide();
+          notify(t('toast.changeEmailSuccess'), 'success');
+        } else if (data.code === 2) {
+          setSubmitting(false);
+          setFieldError('email', data.message);
+        } else if (!data) {
+          navigate(routes.loginPage);
+          notify(t('toast.changeEmailSuccess'), 'success');
+        }
+      } catch (e) {
+        notify(t('toast.unknownError'), 'error');
+        console.log(e);
       }
-      onHide();
-      formik.errors.email = '';
     },
   });
 

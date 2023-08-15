@@ -148,8 +148,7 @@ const SignupForm = () => {
             {t('signupForm.mustMatch')}
           </Form.Control.Feedback>
         </FloatingLabel>
-
-        <Button variant="outline-primary" className="w-100" type="submit">{t('signupForm.submit')}</Button>
+        <Button variant="outline-primary" className="w-100" type="submit" disabled={formik.isSubmitting}>{t('signupForm.submit')}</Button>
       </Form>
     </div>
   );

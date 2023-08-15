@@ -55,6 +55,14 @@ export const signupValidation = yup.object().shape({
     .test('confirmPassword', (value, context) => value === context.parent.password),
 });
 
+export const emailValidation = yup.object().shape({
+  email: yup
+    .string()
+    .email()
+    .trim()
+    .required(),
+});
+
 export const activationValidation = yup.object().shape({
   code: yup
     .string()

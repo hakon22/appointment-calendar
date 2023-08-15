@@ -108,7 +108,7 @@ const LoginForm = () => {
           name="save"
           label={t('loginForm.checkbox')}
         />
-        <Button variant="outline-primary" className="w-100" type="submit">{t('loginForm.submit')}</Button>
+        <Button variant="outline-primary" className="w-100" type="submit" disabled={formik.isSubmitting}>{t('loginForm.submit')}</Button>
       </Form>
     </div>
   );

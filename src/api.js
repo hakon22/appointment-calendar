@@ -55,6 +55,8 @@ router.post('/api/activation/', Act.activation);
 
 router.get('/api/activation/:id', Act.needsActivation);
 
-router.get('/api/activation/repeat/:id', Act.repeatEmail);
+router.get('/api/activation/repeat-email/:id', Act.repeatEmail);
+
+router.post('/api/activation/change-email', Act.changeEmail);
 
 module.exports = router;
