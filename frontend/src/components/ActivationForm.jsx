@@ -35,6 +35,9 @@ const ActivationForm = ({ id }) => {
       if (data) {
         setTimer(59);
         notify(t('toast.emailSuccess'), 'success');
+      } else {
+        navigate(routes.loginPage);
+        notify(t('toast.doesNotRequireActivation'), 'error');
       }
     } catch (e) {
       notify(t('toast.unknownError'), 'error');
@@ -49,19 +52,17 @@ const ActivationForm = ({ id }) => {
     validationSchema: activationValidation,
     onSubmit: async (values, { setFieldError, setSubmitting }) => {
       try {
-        const {
-          data:
-          { code, message, refreshToken },
-        } = await axios.post(routes.activation, { ...values, id });
-        if (code === 1 && refreshToken) {
-          await dispatch(updateTokens(refreshToken));
+        const { data } = await axios.post(routes.activation, { ...values, id });
+        if (data.code === 1 && data.refreshToken) {
+          await dispatch(updateTokens(data.refreshToken));
           navigate(routes.homePage);
           notify(t('toast.activationSuccess'), 'success');
-        } else if (code === 2) {
+        } else if (data.code === 2) {
           setSubmitting(false);
-          setFieldError('code', message);
-        } else if (!code) {
-          notify(t('toast.networkError'), 'error');
+          setFieldError('code', data.message);
+        } else if (!data) {
+          navigate(routes.loginPage);
+          notify(t('toast.doesNotRequireActivation'), 'error');
         }
       } catch (e) {
         notify(t('toast.unknownError'), 'error');
@@ -138,7 +139,7 @@ const ActivationForm = ({ id }) => {
         { timer !== '00'
           ? (<p className="text-muted mb-3-5">{`${t('activationForm.timerText')}${timer}`}</p>)
           : (
-            <Button onClick={repeatEmail} variant="warning" className="mb-3-5 anim-show" size="sm" disabled={formik.isSubmitting}>
+            <Button onClick={repeatEmail} variant="warning" className="d-block mx-auto mb-3-5 anim-show" size="sm" disabled={formik.isSubmitting}>
               <EnvelopeAt />
               {t('activationForm.timerButton')}
             </Button>

@@ -1,10 +1,12 @@
 import { useRef } from 'react';
+import { useDispatch } from 'react-redux';
 import { Form, Modal, Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useFormik } from 'formik';
 import axios from 'axios';
 import routes from '../routes.js';
+import { changeEmailActivation } from '../slices/loginSlice.js';
 import notify from '../utilities/toast.js';
 import { emailValidation } from '../validations/validations.js';
 
@@ -13,6 +15,7 @@ const ModalChangeActivationEmail = ({
 }) => {
   const { t } = useTranslation();
   const input = useRef();
+  const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const formik = useFormik({
@@ -22,8 +25,9 @@ const ModalChangeActivationEmail = ({
     validationSchema: emailValidation,
     onSubmit: async (values, { setFieldError, setSubmitting }) => {
       try {
-        const data = await axios.post(routes.activationChangeEmail, { ...values, id });
+        const { data } = await axios.post(routes.activationChangeEmail, { ...values, id });
         if (data.code === 1) {
+          dispatch(changeEmailActivation(values.email));
           onHide();
           notify(t('toast.changeEmailSuccess'), 'success');
         } else if (data.code === 2) {
@@ -31,7 +35,7 @@ const ModalChangeActivationEmail = ({
           setFieldError('email', data.message);
         } else if (!data) {
           navigate(routes.loginPage);
-          notify(t('toast.changeEmailSuccess'), 'success');
+          notify(t('toast.doesNotRequireActivation'), 'error');
         }
       } catch (e) {
         notify(t('toast.unknownError'), 'error');

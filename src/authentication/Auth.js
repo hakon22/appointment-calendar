@@ -21,6 +21,15 @@ class Authentication {
       const user = await Users.create({ username, phone, password: hashPassword, email, role, code_activation });
       const { id } = user;
       await sendMail(id, username, email, code_activation);
+      setTimeout( async () => {
+        const { code_activation } = await Users.findOne({
+          attributes: ['code_activation'],
+          where: { id },
+        }) ?? '';
+        if (code_activation !== '') {
+          await Users.destroy({ where: { id } });
+        }
+      }, 86400000);
       res.json({ code: 1, id });
     } catch (e) {
       console.log(e);

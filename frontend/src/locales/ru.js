@@ -51,6 +51,7 @@ export default {
       activationSuccess: 'Аккаунт успешно активирован',
       emailSuccess: 'Сообщение успешно отправлено',
       changeEmailSuccess: 'Почта успешно обновлена',
+      doesNotRequireActivation: 'Аккаунт не требует активации',
       networkError: 'Ошибка соединения',
       unknownError: 'Неизвестная ошибка',
       authError: 'Ошибка аутентификации',
