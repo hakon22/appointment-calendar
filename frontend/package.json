@@ -2,7 +2,7 @@
   "name": "recording-calendar",
   "version": "1.0.0",
   "private": true,
-  "proxy": "http://0.0.0.0:3001",
+  "proxy": "http://0.0.0.0:3003",
   "main": "src/index.js",
   "type": "module",
   "scripts": {
