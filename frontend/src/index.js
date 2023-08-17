@@ -1,10 +1,16 @@
+import { hydrateRoot, createRoot } from 'react-dom/client';
 import './scss/app.scss';
-import ReactDOM from 'react-dom/client';
 import init from './init.jsx';
 
 const app = async () => {
-  const root = ReactDOM.createRoot(document.getElementById('root'));
-  root.render(await init());
+  const container = document.getElementById('root');
+
+  if (container.hasChildNodes()) {
+    hydrateRoot(container, await init());
+  } else {
+    const root = createRoot(container);
+    root.render(await init());
+  }
 };
 
 app();

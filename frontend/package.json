@@ -4,12 +4,13 @@
   "private": true,
   "proxy": "http://0.0.0.0:3003",
   "main": "src/index.js",
-  "type": "module",
   "scripts": {
+    "generate-sw": "sw-precache --root=build --config scripts/sw-precache-config.js && uglifyjs build/service-worker.js -o build/service-worker.js",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "snap": "react-snap && npm run generate-sw"
   },
   "author": "hakon22",
   "license": "ISC",
@@ -27,6 +28,7 @@
     "react-bootstrap-icons": "^1.10.3",
     "react-calendar": "^4.6.0",
     "react-dom": "^18.2.0",
+    "react-helmet": "^6.1.0",
     "react-i18next": "^13.0.0",
     "react-input-mask": "^2.0.4",
     "react-redux": "^8.1.0",
@@ -43,7 +45,10 @@
     "eslint-plugin-jsx-a11y": "^6.7.1",
     "eslint-plugin-react": "^7.32.2",
     "eslint-plugin-react-hooks": "^4.6.0",
-    "sass": "^1.63.6"
+    "react-snap": "^1.23.0",
+    "sass": "^1.63.6",
+    "sw-precache": "^5.2.1",
+    "uglify-js": "^3.17.4"
   },
   "browserslist": {
     "production": [

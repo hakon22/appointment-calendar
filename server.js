@@ -17,7 +17,6 @@ const buildPath = path.join(__dirname, 'frontend', 'build');
 app.use(express.static(buildPath));
 app.use(express.json());
 app.use(cors());
-app.use(require('prerender-node').set('prerenderToken', 'yWWDOT9Y3rf6ivKHY7tC'));
 app.use(passport.initialize());
 require('./src/authentication/tokenChecker.js')(passport);
 require('./src/authentication/refreshTokenChecker.js')(passport);
