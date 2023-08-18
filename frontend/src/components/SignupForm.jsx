@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import cn from 'classnames';
 import axios from 'axios';
 import notify from '../utilities/toast.js';
+import watermelon from '../images/watermelon.svg';
 import { signupValidation } from '../validations/validations.js';
 import { MobileContext } from './Context.jsx';
 import { upperCase, lowerCase } from '../utilities/textTransform.js';
@@ -55,7 +56,7 @@ const SignupForm = () => {
 
   return (
     <div className="d-flex justify-content-center gap-5">
-      {!isMobile && <Image className="w-25 h-25 mt-12 me-4" src="./images/watermelon.svg" alt={t('signupForm.title')} roundedCircle />}
+      {!isMobile && <Image className="w-25 h-25 mt-12 me-4" src={watermelon} alt={t('signupForm.title')} roundedCircle />}
       <Form
         onSubmit={formik.handleSubmit}
         className="col-12 col-md-5"

@@ -51,6 +51,8 @@ router.post('/api/delete-auth', Auth.removeAuth);
 
 router.get('/api/auth', passport.authenticate('jwt', { session: false }), Auth.confirmAuth);
 
+router.get('/api/get-date', passport.authenticate('jwt', { session: false }), Auth.getDate);
+
 router.post('/api/activation/', Act.activation);
 
 router.get('/api/activation/:id', Act.needsActivation);

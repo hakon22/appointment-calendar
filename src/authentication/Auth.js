@@ -103,6 +103,16 @@ class Authentication {
 
   async removeAuth(req, res) {
     try {
+      const { dataValues: { id, username, role, refresh_token }, token, refreshToken } = req.user;
+      res.json({ status: 'Tokens has been deleted' });
+    } catch (e) {
+      console.log(e);
+      res.sendStatus(401);
+    }
+  }
+
+  async getDate(req, res) {
+    try {
       const { id, refreshToken } = req.body;
       const { dataValues: { refresh_token } } = await Users.findOne({
         attributes: ['refresh_token'],

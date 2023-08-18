@@ -14,7 +14,7 @@ export default {
   activationChangeEmail: [apiPath, 'activation/change-email'].join('/'),
   auth: [apiPath, 'auth'].join('/'),
   deleteAuth: [apiPath, 'delete-auth'].join('/'),
-  dateTime: [apiPath, 'date-time/'].join('/'),
+  getDate: [apiPath, 'get-date/'].join('/'),
   checkRole: [apiPath, 'get-role'].join('/'),
   add: [apiPath, 'data-add'].join('/'),
   delete: [apiPath, 'data-delete/'].join('/'),

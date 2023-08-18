@@ -6,6 +6,7 @@ import {
   Button, Form, FloatingLabel, Image,
 } from 'react-bootstrap';
 import cn from 'classnames';
+import pear from '../images/pear.svg';
 import { fetchLogin } from '../slices/loginSlice.js';
 import { AuthContext, MobileContext } from './Context.jsx';
 import { loginValidation } from '../validations/validations.js';
@@ -59,7 +60,7 @@ const LoginForm = () => {
 
   return (
     <div className="d-flex justify-content-center gap-5">
-      {!isMobile && <Image className="w-25 h-25 mt-md-3 mt-xxl-1 me-4" src="./images/pear.svg" alt={t('loginForm.title')} roundedCircle />}
+      {!isMobile && <Image className="w-25 h-25 mt-md-3 mt-xxl-1 me-4" src={pear} alt={t('loginForm.title')} roundedCircle />}
       <Form
         onSubmit={formik.handleSubmit}
         className="col-12 col-md-5"

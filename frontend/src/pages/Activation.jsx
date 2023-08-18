@@ -1,6 +1,7 @@
 import { Card, Spinner } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 import { useParams, useNavigate } from 'react-router-dom';
+import { Helmet } from 'react-helmet';
 import { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import ActivationForm from '../components/ActivationForm.jsx';
@@ -32,6 +33,11 @@ const Activation = () => {
     )
     : (
       <div className="col-12 col-md-8">
+        <Helmet>
+          <title>{t('activationForm.title')}</title>
+          <meta name="description" content={t('activationForm.submit')} />
+          <link rel="canonical" href={window.location.href} />
+        </Helmet>
         <Card border="secondary" bg="light" className="text-center">
           <Card.Header className="h4">{t('activationForm.title')}</Card.Header>
           <Card.Body>

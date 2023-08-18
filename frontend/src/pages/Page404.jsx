@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { Helmet } from 'react-helmet';
 import { Card, Image } from 'react-bootstrap';
 import lemon from '../images/lemon.svg';
 
@@ -6,6 +7,11 @@ const Page404 = () => {
   const { t } = useTranslation();
   return (
     <div className="col-12 col-md-8">
+      <Helmet>
+        <title>{t('404.header')}</title>
+        <meta name="description" content={t('404.title')} />
+        <link rel="canonical" href={window.location.href} />
+      </Helmet>
       <Card border="warning" bg="light" className="text-center">
         <Card.Header>{t('404.header')}</Card.Header>
         <Card.Body>

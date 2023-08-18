@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import CalendarApp from 'react-calendar';
 import { useTranslation } from 'react-i18next';
 import { Alert, Stack } from 'react-bootstrap';
+import { Helmet } from 'react-helmet';
 import { MobileContext } from '../components/Context.jsx';
 import AdminPanel from '../components/AdminPanel.jsx';
 import MemberPanel from '../components/MemberPanel.jsx';
@@ -31,6 +32,11 @@ const Calendar = () => {
   return (
     <>
       <div className="col-12 col-md-4 mb-3">
+        <Helmet>
+          <title>{t('calendar.title')}</title>
+          <meta name="description" content={t('calendar.description')} />
+          <link rel="canonical" href={window.location.href} />
+        </Helmet>
         <Stack direction="horizontal">
           <Stack>
             <Alert variant="primary" className="text-center">
@@ -38,8 +44,8 @@ const Calendar = () => {
             </Alert>
             <CalendarApp
               className="w-100"
-              onChange={() => setDate(new Date())}
               value={date}
+              onClickDay={(value) => setDate(value)}
               tileClassName={({ view }) => (view === 'month' ? 'open-date' : null)}
             />
           </Stack>
@@ -47,7 +53,7 @@ const Calendar = () => {
         </Stack>
       </div>
       <div className="col-12 col-md-8 mb-3">
-        {isAdmin() ? <AdminPanel /> : <MemberPanel />}
+        {isAdmin() ? <AdminPanel date={date} /> : <MemberPanel date={date} />}
       </div>
     </>
   );

@@ -2,11 +2,11 @@ import axios from 'axios';
 import { createSlice, createEntityAdapter, createAsyncThunk } from '@reduxjs/toolkit';
 import routes from '../routes.js';
 
-export const fetchTokenStorage = createAsyncThunk(
-  'calendar/fetchTokenStorage',
-  async (refreshTokenStorage) => {
-    const response = await axios.get(routes.checkRole, {
-      headers: { Authorization: `Bearer ${refreshTokenStorage}` },
+export const fetchDate = createAsyncThunk(
+  'calendar/fetchDate',
+  async (token) => {
+    const response = await axios.get(routes.getDate, {
+      headers: { Authorization: `Bearer ${token}` },
     });
     return response.data;
   },
@@ -25,15 +25,15 @@ const calendarSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchTokenStorage.pending, (state) => {
+      .addCase(fetchDate.pending, (state) => {
         state.loadingStatus = 'loading';
         state.error = null;
       })
-      .addCase(fetchTokenStorage.fulfilled, (state) => {
+      .addCase(fetchDate.fulfilled, (state) => {
         state.loadingStatus = 'finish';
         state.error = null;
       })
-      .addCase(fetchTokenStorage.rejected, (state, action) => {
+      .addCase(fetchDate.rejected, (state, action) => {
         state.loadingStatus = 'failed';
         state.error = action.error.message;
       });

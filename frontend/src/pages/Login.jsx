@@ -1,6 +1,7 @@
 import { Card, Spinner } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
+import { Helmet } from 'react-helmet';
 import { useEffect, useContext } from 'react';
 import { useSelector } from 'react-redux';
 import routes from '../routes.js';
@@ -27,6 +28,11 @@ const Login = () => {
     )
     : (
       <div className="col-12 col-lg-8">
+        <Helmet>
+          <title>{t('loginForm.title')}</title>
+          <meta name="description" content={t('loginForm.description')} />
+          <link rel="canonical" href={window.location.href} />
+        </Helmet>
         <Card border="secondary" bg="light" className="text-center">
           <Card.Header className="h4">{t('loginForm.title')}</Card.Header>
           <Card.Body>

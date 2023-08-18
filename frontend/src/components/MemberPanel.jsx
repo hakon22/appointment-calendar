@@ -22,7 +22,7 @@ const MemberPanel = () => {
           onSelect={(key) => setNav(key)}
           id="tabs"
         >
-          <Tab eventKey="home" title={t('calendar.home')}>
+          <Tab eventKey="home" title={t('calendar.tabs.home')}>
             <hr />
             <Card.Body>
               <Card.Title>{t('calendar.homeTitle', { username })}</Card.Title>
@@ -31,7 +31,7 @@ const MemberPanel = () => {
               </Card.Text>
             </Card.Body>
           </Tab>
-          <Tab eventKey="recording" title={t('calendar.recording')}>
+          <Tab eventKey="recording" title={t('calendar.tabs.recording')}>
             <hr />
             <Card.Body>
               <Card.Title>{t('calendar.recordingTitle')}</Card.Title>
@@ -40,7 +40,7 @@ const MemberPanel = () => {
               </Card.Text>
             </Card.Body>
           </Tab>
-          <Tab eventKey="confirmation" title={t('calendar.confirmation')} disabled>
+          <Tab eventKey="confirmation" title={t('calendar.tabs.confirmation')} disabled>
             <hr />
             <Card.Body>
               <Card.Title>{t('calendar.confirmationTitle')}</Card.Title>
@@ -49,7 +49,7 @@ const MemberPanel = () => {
               </Card.Text>
             </Card.Body>
           </Tab>
-          <Tab eventKey="setup" title={t('calendar.setup')}>
+          <Tab eventKey="setup" title={t('calendar.tabs.setup')}>
             <hr />
             <Card.Body>
               <Card.Title>{t('calendar.setupTitle')}</Card.Title>

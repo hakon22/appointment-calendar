@@ -5,15 +5,11 @@ const Date_Times = db.define(
   'Date_Times',
   {
     date: {
-      type: DataTypes.DATEONLY,
+      type: DataTypes.TEXT,
       allowNull: false,
     },
-    open_time: {
-      type: DataTypes.ARRAY(DataTypes.TIME),
-      allowNull: false,
-    },
-    close_time: {
-      type: DataTypes.ARRAY(DataTypes.TIME),
+    time: {
+      type: DataTypes.ARRAY(DataTypes.JSONB), 
       allowNull: false,
     },
   },
