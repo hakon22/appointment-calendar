@@ -51,7 +51,7 @@ router.post('/api/delete-auth', Auth.removeAuth);
 
 router.get('/api/auth', passport.authenticate('jwt', { session: false }), Auth.confirmAuth);
 
-router.get('/api/get-date', passport.authenticate('jwt', { session: false }), Auth.getDate);
+router.get('/api/get-admin-date', passport.authenticate('jwt', { session: false }), Auth.getAdminDate);
 
 router.post('/api/activation/', Act.activation);
 

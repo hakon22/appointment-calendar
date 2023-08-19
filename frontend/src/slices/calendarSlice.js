@@ -5,7 +5,7 @@ import routes from '../routes.js';
 export const fetchDate = createAsyncThunk(
   'calendar/fetchDate',
   async (token) => {
-    const response = await axios.get(routes.getDate, {
+    const response = await axios.get(routes.getAdminDate, {
       headers: { Authorization: `Bearer ${token}` },
     });
     return response.data;
