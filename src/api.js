@@ -2,6 +2,7 @@ const express = require('express');
 const passport = require('passport');
 const Auth = require('./authentication/Auth.js');
 const { Act } = require('./activation/Activation.js');
+const CalendarHandler = require('./calendar/Calendar.js');
 const Date_Times = require('./db/tables/Date_Times.js');
 
 const router = express.Router();
@@ -51,7 +52,7 @@ router.post('/api/delete-auth', Auth.removeAuth);
 
 router.get('/api/auth', passport.authenticate('jwt', { session: false }), Auth.confirmAuth);
 
-router.get('/api/get-admin-date', passport.authenticate('jwt', { session: false }), Auth.getAdminDate);
+router.post('/api/get-admin-date', passport.authenticate('jwt', { session: false }), CalendarHandler.getAdminDate);
 
 router.post('/api/activation/', Act.activation);
 

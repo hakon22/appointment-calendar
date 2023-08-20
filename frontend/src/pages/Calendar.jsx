@@ -8,6 +8,7 @@ import { MobileContext } from '../components/Context.jsx';
 import AdminPanel from '../components/AdminPanel.jsx';
 import MemberPanel from '../components/MemberPanel.jsx';
 import { updateTokens } from '../slices/loginSlice.js';
+import { fetchDate } from '../slices/calendarSlice.js';
 
 const Calendar = () => {
   const { t } = useTranslation();
@@ -46,6 +47,7 @@ const Calendar = () => {
               className="w-100"
               value={date}
               onClickDay={(value) => setDate(value)}
+              onChange={() => dispatch(fetchDate)}
               tileClassName={({ view }) => (view === 'month' ? 'open-date' : null)}
             />
           </Stack>

@@ -4,8 +4,8 @@ import routes from '../routes.js';
 
 export const fetchDate = createAsyncThunk(
   'calendar/fetchDate',
-  async (token) => {
-    const response = await axios.get(routes.getAdminDate, {
+  async ({ token, date }) => {
+    const response = await axios.post(routes.getAdminDate, date, {
       headers: { Authorization: `Bearer ${token}` },
     });
     return response.data;
@@ -29,7 +29,8 @@ const calendarSlice = createSlice({
         state.loadingStatus = 'loading';
         state.error = null;
       })
-      .addCase(fetchDate.fulfilled, (state) => {
+      .addCase(fetchDate.fulfilled, (state, { payload }) => {
+        console.log(payload);
         state.loadingStatus = 'finish';
         state.error = null;
       })

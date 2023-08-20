@@ -7,7 +7,7 @@ import {
   Button, Card, Tabs, Tab, Form,
 } from 'react-bootstrap';
 import { MobileContext } from './Context.jsx';
-import { fetchToken } from '../slices/loginSlice.js';
+import { fetchDate } from '../slices/calendarSlice.js';
 
 const AdminPanel = ({ date }) => {
   const dispatch = useDispatch();
@@ -22,7 +22,7 @@ const AdminPanel = ({ date }) => {
     },
     onSubmit: async (values) => {
       try {
-        console.log(values);
+        dispatch(fetchDate({ token, date: values.date }));
       } catch (e) {
         console.log(e);
       }
@@ -108,7 +108,7 @@ const AdminPanel = ({ date }) => {
               <Card.Text>
                 {t('calendar.adminSetupText')}
               </Card.Text>
-              <Button variant="primary" onClick={() => dispatch(fetchToken(token))}>Какая-нибудь кнопка</Button>
+              <Button variant="primary">Какая-нибудь кнопка</Button>
             </Card.Body>
           </Tab>
         </Tabs>

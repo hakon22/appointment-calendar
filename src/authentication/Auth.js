@@ -113,21 +113,10 @@ class Authentication {
         const newRefreshTokens = refreshTokens.length > 0 ? refreshTokens : null;
         await Users.update({ refresh_token: newRefreshTokens }, { where: { id } });
       }
-      res.json({ status: 'Tokens has been deleted' });
+      res.status(200).json({ status: 'Tokens has been deleted' });
     } catch (e) {
       console.log(e);
       res.sendStatus(500);
-    }
-  }
-
-  async getAdminDate(req, res) {
-    try {
-      const { dataValues: { role } } = req.user;
-
-      res.json({ status: 'Tokens has been deleted' });
-    } catch (e) {
-      console.log(e);
-      res.sendStatus(401);
     }
   }
 }
