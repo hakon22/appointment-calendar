@@ -1,12 +1,14 @@
+/* eslint-disable no-nested-ternary */
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useContext, useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { useFormik } from 'formik';
 import {
-  Button, Card, Tabs, Tab, Form,
+  Button, Card, Tabs, Tab, Spinner,
 } from 'react-bootstrap';
 import { MobileContext } from './Context.jsx';
+import NewDate from './NewDate.jsx';
 import { fetchDate } from '../slices/calendarSlice.js';
 
 const AdminPanel = ({ date }) => {
@@ -15,6 +17,7 @@ const AdminPanel = ({ date }) => {
   const isMobile = useContext(MobileContext);
   const [nav, setNav] = useState('home');
   const { username, token } = useSelector((state) => state.login);
+  const { ids, entities, loadingStatus } = useSelector((state) => state.calendar);
 
   const formik = useFormik({
     initialValues: {
@@ -69,26 +72,20 @@ const AdminPanel = ({ date }) => {
             <Card.Body>
               <Card.Title className="mb-4 fs-6">{t('calendar.controlTitle')}</Card.Title>
               <Card.Text as="div">
-                {date
+                {loadingStatus !== 'finish' && loadingStatus !== 'idle'
                   ? (
-                    <Form
-                      onSubmit={formik.handleSubmit}
-                      className="col-8 col-md-5 col-lg-4 col-xxl-3"
-                    >
-                      <Form.Control
-                        className="mb-3"
-                        type="date"
-                        name="date"
-                        onChange={formik.handleChange}
-                        value={formik.values.date}
-                        disabled={formik.isSubmitting}
-                        onBlur={formik.handleBlur}
-                        required
-                      />
-                      <Button variant="primary" type="submit" disabled={formik.isSubmitting}>{t('loginForm.submit')}</Button>
-                    </Form>
+                    <div className="h-100 d-flex justify-content-start align-items-center">
+                      <Spinner animation="border" variant="primary" role="status" />
+                    </div>
                   )
-                  : t('calendar.controlText')}
+                  : ids.length > 0 && date
+                    ? (
+                      <>
+                        <p>{t('calendar.monitoringTitle', { date: date.toLocaleString('ru-RU', { year: 'numeric', month: 'long', day: 'numeric' }).slice(0, -1) })}</p>
+                        <div>{entities.map((time) => time)}</div>
+                      </>
+                    )
+                    : date ? <NewDate date={formik.values.date} /> : t('calendar.controlText')}
               </Card.Text>
             </Card.Body>
           </Tab>

@@ -6,15 +6,46 @@ class Calendar {
     try {
       const { dataValues: { role } } = req.user;
       if (role === 'admin') {
-        const date = req.body;
-        const { dataValues } = await Date_Times.findOne({ where: { date } });
-        console.log(dataValues)
+        const { date } = req.body;
+        const data = await Date_Times.findOne({ where: { date } });
+        if (data) {
+          res.status(200).json(data.dataValues);
+        } else {
+          res.status(200).json({ code: 2 });
+        }
       } else {
         res.status(401).json(false);
       }
     } catch (e) {
       console.log(e);
-      res.sendStatus(401);
+      res.sendStatus(500);
+    }
+  }
+
+  async setAdminDate(req, res) {
+    try {
+      const { dataValues: { role } } = req.user;
+      if (role === 'admin') {
+        const { date } = req.body; 
+        const times = Object.values(req.body).reduce((acc, value) => {
+          if (value !== date) {
+            acc[value] = { userId: '' };
+          }
+          return acc;
+        }, {});
+        const data = await Date_Times.create({ date, time: [times] });
+        console.log(data);
+        if (data) {
+          res.status(200).json(data.dataValues);
+        } else {
+          res.status(200).json({ code: 2 });
+        }
+      } else {
+        res.status(401).json(false);
+      }
+    } catch (e) {
+      console.log(e);
+      res.sendStatus(500);
     }
   }
 }

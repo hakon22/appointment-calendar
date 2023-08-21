@@ -82,6 +82,13 @@ export default {
         setup: 'Настройки',
         control: 'Управление',
       },
+      newDate: {
+        emptyDate: 'В настоящий момент день закрыт для приёма',
+        openDate: 'Открыть дату',
+        removeField: 'Удалить',
+        addField: 'Добавить ещё',
+        saveTimes: 'Сохранить',
+      },
     },
     modal: {
       changeEmailTitle: 'Изменить почту',

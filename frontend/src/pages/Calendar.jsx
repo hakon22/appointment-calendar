@@ -16,7 +16,7 @@ const Calendar = () => {
   const isMobile = useContext(MobileContext);
   const [date, setDate] = useState('');
 
-  const { refreshToken, role } = useSelector((state) => state.login);
+  const { refreshToken, role, token } = useSelector((state) => state.login);
 
   useEffect(() => {
     if (refreshToken !== null) {
@@ -46,8 +46,10 @@ const Calendar = () => {
             <CalendarApp
               className="w-100"
               value={date}
-              onClickDay={(value) => setDate(value)}
-              onChange={() => dispatch(fetchDate)}
+              onClickDay={(value) => {
+                setDate(value);
+                dispatch(fetchDate({ token, date: value.toLocaleDateString('en-CA') }));
+              }}
               tileClassName={({ view }) => (view === 'month' ? 'open-date' : null)}
             />
           </Stack>

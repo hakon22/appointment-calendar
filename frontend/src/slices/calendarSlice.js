@@ -5,7 +5,17 @@ import routes from '../routes.js';
 export const fetchDate = createAsyncThunk(
   'calendar/fetchDate',
   async ({ token, date }) => {
-    const response = await axios.post(routes.getAdminDate, date, {
+    const response = await axios.post(routes.getAdminDate, { date }, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data;
+  },
+);
+
+export const addNewDate = createAsyncThunk(
+  'calendar/addNewDate',
+  async ({ token, values }) => {
+    const response = await axios.post(routes.setAdminDate, values, {
       headers: { Authorization: `Bearer ${token}` },
     });
     return response.data;
@@ -22,6 +32,7 @@ const calendarSlice = createSlice({
   reducers: {
     addData: calendarAdapter.addOne,
     removeData: calendarAdapter.removeOne,
+    addTimes: calendarAdapter.addMany,
   },
   extraReducers: (builder) => {
     builder
@@ -29,12 +40,25 @@ const calendarSlice = createSlice({
         state.loadingStatus = 'loading';
         state.error = null;
       })
-      .addCase(fetchDate.fulfilled, (state, { payload }) => {
-        console.log(payload);
+      .addCase(fetchDate.fulfilled, (state, action) => {
+        calendarAdapter.addMany(action);
         state.loadingStatus = 'finish';
         state.error = null;
       })
       .addCase(fetchDate.rejected, (state, action) => {
+        state.loadingStatus = 'failed';
+        state.error = action.error.message;
+      })
+      .addCase(addNewDate.pending, (state) => {
+        state.loadingStatus = 'loading';
+        state.error = null;
+      })
+      .addCase(addNewDate.fulfilled, (state, { payload }) => {
+        console.log(payload);
+        state.loadingStatus = 'finish';
+        state.error = null;
+      })
+      .addCase(addNewDate.rejected, (state, action) => {
         state.loadingStatus = 'failed';
         state.error = action.error.message;
       });

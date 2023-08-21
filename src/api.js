@@ -54,6 +54,8 @@ router.get('/api/auth', passport.authenticate('jwt', { session: false }), Auth.c
 
 router.post('/api/get-admin-date', passport.authenticate('jwt', { session: false }), CalendarHandler.getAdminDate);
 
+router.post('/api/set-admin-date', passport.authenticate('jwt', { session: false }), CalendarHandler.setAdminDate);
+
 router.post('/api/activation/', Act.activation);
 
 router.get('/api/activation/:id', Act.needsActivation);
