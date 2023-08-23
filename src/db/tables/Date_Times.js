@@ -7,9 +7,10 @@ const Date_Times = db.define(
     date: {
       type: DataTypes.TEXT,
       allowNull: false,
+      unique: true,
     },
     time: {
-      type: DataTypes.ARRAY(DataTypes.JSONB), 
+      type: DataTypes.JSONB, 
       allowNull: false,
     },
   },

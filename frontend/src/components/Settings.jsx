@@ -2,7 +2,9 @@ import { useCallback, useMemo } from 'react';
 import { Provider } from 'react-redux';
 import { io } from 'socket.io-client';
 import { ToastContainer } from 'react-toastify';
-import { actions } from '../slices/calendarSlice.js';
+import {
+  soketAddNewDate, soketChangeTime, soketAddNewTime, soketRemoveTime,
+} from '../slices/calendarSlice.js';
 import store from '../slices/index.js';
 import ApiContext, { MobileContext } from './Context.jsx';
 import App from './App.jsx';
@@ -14,14 +16,17 @@ const Settings = () => {
     socket.emit(param, arg);
   }, [socket]);
   const socketApi = useMemo(() => ({
-    addLike: (like) => socketConnect('addLike', like),
-    removeLike: (like) => socketConnect('removeLike', like),
-    addData: (data) => socketConnect('addData', data),
-    removeData: (data) => socketConnect('removeData', data),
+    soketAddNewDate: (data) => socketConnect('soketAddNewDate', data),
+    soketChangeTime: (data) => socketConnect('soketChangeTime', data),
+    soketAddNewTime: (data) => socketConnect('soketAddNewTime', data),
+    soketRemoveTime: (data) => socketConnect('soketRemoveTime', data),
   }), [socketConnect]);
 
-  socket.on('addData', (data) => store.dispatch(actions.addData(data)));
-  socket.on('removeData', (data) => store.dispatch(actions.removeData(data)));
+  socket.on('soketAddNewDate', (data) => store.dispatch(soketAddNewDate(data)));
+  socket.on('soketChangeTime', (data) => store.dispatch(soketChangeTime(data)));
+  socket.on('soketAddNewTime', (data) => store.dispatch(soketAddNewTime(data)));
+  socket.on('soketRemoveTime', (data) => store.dispatch(soketRemoveTime(data)));
+
   return (
     <Provider store={store}>
       <ApiContext.Provider value={socketApi}>

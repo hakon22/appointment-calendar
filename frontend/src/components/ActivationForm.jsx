@@ -13,7 +13,7 @@ import { EnvelopeAt } from 'react-bootstrap-icons';
 import notify from '../utilities/toast.js';
 import { updateTokens } from '../slices/loginSlice.js';
 import { MobileContext } from './Context.jsx';
-import ModalChangeActivationEmail from './Modals.jsx';
+import { ModalChangeActivationEmail } from './Modals.jsx';
 import { activationValidation } from '../validations/validations.js';
 import pineapple from '../images/pineapple.svg';
 import routes from '../routes.js';
@@ -113,7 +113,6 @@ const ActivationForm = ({ id }) => {
           variant="warning"
           className="mt-1 mb-1"
           title={email}
-          autoClose="inside"
         >
           <Dropdown.Item eventKey="1" onClick={modalShow}>{t('activationForm.dropMenuChange')}</Dropdown.Item>
         </DropdownButton>

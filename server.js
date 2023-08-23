@@ -26,12 +26,14 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(buildPath, 'index.html'));
 });
 
-/* io.on('connection', (socket) => {
+io.on('connection', (socket) => {
   console.log('user connected');
 
-  socket.on('addData', (article) => io.emit('addData', article));
-  socket.on('removeData', (article) => io.emit('removeData', article));
-}); */
+  socket.on('soketAddNewDate', (data) => io.emit('soketAddNewDate', data));
+  socket.on('soketChangeTime', (data) => io.emit('soketChangeTime', data));
+  socket.on('soketAddNewTime', (data) => io.emit('soketAddNewTime', data));
+  socket.on('soketRemoveTime', (data) => io.emit('soketRemoveTime', data));
+});
 
 server.listen(port, () => {
   console.log(`Server is online on port: ${port}`);

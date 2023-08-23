@@ -52,9 +52,15 @@ router.post('/api/delete-auth', Auth.removeAuth);
 
 router.get('/api/auth', passport.authenticate('jwt', { session: false }), Auth.confirmAuth);
 
-router.post('/api/get-admin-date', passport.authenticate('jwt', { session: false }), CalendarHandler.getAdminDate);
+router.post('/api/date/get-date', passport.authenticate('jwt', { session: false }), CalendarHandler.getDate);
 
-router.post('/api/set-admin-date', passport.authenticate('jwt', { session: false }), CalendarHandler.setAdminDate);
+router.post('/api/date/set-date', passport.authenticate('jwt', { session: false }), CalendarHandler.setDate);
+
+router.patch('/api/date/change-time', passport.authenticate('jwt', { session: false }), CalendarHandler.changeTime);
+
+router.patch('/api/date/add-new-time', passport.authenticate('jwt', { session: false }), CalendarHandler.addNewTime);
+
+router.delete('/api/date/remove-time', passport.authenticate('jwt', { session: false }), CalendarHandler.removeTime);
 
 router.post('/api/activation/', Act.activation);
 

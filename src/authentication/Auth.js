@@ -60,7 +60,7 @@ class Authentication {
       } = user;
       if (!user.refresh_token) {
         await Users.update({ refresh_token: [refreshToken] }, { where: { email } });
-      } else if (user.refresh_token.length < 3) {
+      } else if (user.refresh_token.length < 4) {
         user.refresh_token.push(refreshToken);
         await Users.update({ refresh_token: user.refresh_token }, { where: { email } });
       } else {

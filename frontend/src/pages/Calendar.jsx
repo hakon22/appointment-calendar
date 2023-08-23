@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from 'react';
+import { useEffect, useContext, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import CalendarApp from 'react-calendar';
 import { useTranslation } from 'react-i18next';
@@ -14,9 +14,10 @@ const Calendar = () => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
   const isMobile = useContext(MobileContext);
-  const [date, setDate] = useState('');
+  const [currentStringDate, setCurrentStringDate] = useState('');
 
   const { refreshToken, role, token } = useSelector((state) => state.login);
+  const { currentDate } = useSelector((state) => state.calendar);
 
   useEffect(() => {
     if (refreshToken !== null) {
@@ -45,9 +46,9 @@ const Calendar = () => {
             </Alert>
             <CalendarApp
               className="w-100"
-              value={date}
+              value={currentDate}
               onClickDay={(value) => {
-                setDate(value);
+                setCurrentStringDate(value.toLocaleString('ru-RU', { year: 'numeric', month: 'long', day: 'numeric' }).slice(0, -1));
                 dispatch(fetchDate({ token, date: value.toLocaleDateString('en-CA') }));
               }}
               tileClassName={({ view }) => (view === 'month' ? 'open-date' : null)}
@@ -57,7 +58,9 @@ const Calendar = () => {
         </Stack>
       </div>
       <div className="col-12 col-md-8 mb-3">
-        {isAdmin() ? <AdminPanel date={date} /> : <MemberPanel date={date} />}
+        {isAdmin()
+          ? <AdminPanel date={currentDate} stringDate={currentStringDate} />
+          : <MemberPanel date={currentDate} stringDate={currentStringDate} />}
       </div>
     </>
   );

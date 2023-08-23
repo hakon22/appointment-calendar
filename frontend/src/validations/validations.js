@@ -63,6 +63,12 @@ export const emailValidation = yup.object().shape({
     .required(),
 });
 
+export const timeValidation = yup.object().shape({
+  time: yup
+    .string()
+    .required(),
+});
+
 export const activationValidation = yup.object().shape({
   code: yup
     .string()

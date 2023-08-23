@@ -22,6 +22,7 @@ const App = () => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
   const { id, token, error } = useSelector((state) => state.login);
+  const calendarError = useSelector((state) => state.calendar.error);
   const [loggedIn, setLoggedIn] = useState(false);
   const logIn = () => setLoggedIn(true);
   const logOut = useCallback(async () => {
@@ -51,17 +52,24 @@ const App = () => {
   }, [token]);
 
   useEffect(() => {
-    if (error) {
-      if (parseInt(error.match(/\d+/), 10) === 401) {
+    const errorHandler = (err) => {
+      if (parseInt(err.match(/\d+/), 10) === 401) {
         logOut();
         notify(t('toast.authError'), 'error');
       }
-      if (parseInt(error.match(/\d+/), 10) === 500) {
+      if (parseInt(err.match(/\d+/), 10) === 500) {
         notify(t('toast.unknownError'), 'error');
       }
-      console.log(error);
+      console.log(err);
+    };
+
+    if (error) {
+      errorHandler(error);
     }
-  }, [error, logOut, t]);
+    if (calendarError) {
+      errorHandler(calendarError);
+    }
+  }, [error, calendarError, logOut, t]);
 
   return (
     <AuthContext.Provider value={authServices}>
