@@ -62,6 +62,8 @@ router.patch('/api/date/add-new-time', passport.authenticate('jwt', { session: f
 
 router.delete('/api/date/remove-time', passport.authenticate('jwt', { session: false }), CalendarHandler.removeTime);
 
+router.delete('/api/date/remove-date', passport.authenticate('jwt', { session: false }), CalendarHandler.removeDate);
+
 router.post('/api/activation/', Act.activation);
 
 router.get('/api/activation/:id', Act.needsActivation);

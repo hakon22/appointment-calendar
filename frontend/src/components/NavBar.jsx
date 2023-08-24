@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import { Navbar, Container, Button } from 'react-bootstrap';
 import { AuthContext } from './Context.jsx';
 import { removeToken } from '../slices/loginSlice.js';
+import { removeData } from '../slices/calendarSlice.js';
 import routes from '../routes.js';
 
 const NavBar = ({ loggedIn }) => {
@@ -24,6 +25,7 @@ const NavBar = ({ loggedIn }) => {
               onClick={() => {
                 logOut();
                 dispatch(removeToken());
+                dispatch(removeData());
               }}
             >
               {t('navBar.exit')}

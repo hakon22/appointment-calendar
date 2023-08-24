@@ -1,6 +1,6 @@
 const { getDigitalCode } = require('node-verification-code');
 const Users = require('../db/tables/Users.js');
-const sendMail = require('../mail/sendMail.js');
+const { sendMail } = require('../mail/sendMail.js');
 const { generateRefreshToken } = require('../authentication/tokensGen.js');
 
 const codeGen = () => getDigitalCode(4).toString();

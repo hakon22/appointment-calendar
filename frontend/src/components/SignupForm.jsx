@@ -61,7 +61,6 @@ const SignupForm = () => {
         onSubmit={formik.handleSubmit}
         className="col-12 col-md-5"
       >
-
         <FloatingLabel className={formClass('username')} label={t('signupForm.username')} controlId="username">
           <Form.Control
             autoFocus

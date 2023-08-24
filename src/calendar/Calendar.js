@@ -1,4 +1,5 @@
 const Date_Times = require('../db/tables/Date_Times.js');
+const { sendMailCancelRecording } = require('../mail/sendMail.js');
 
 const isAdmin = (role) => role === 'admin';
 
@@ -7,16 +8,25 @@ class Calendar {
   async getDate(req, res) {
     try {
       const { dataValues: { role } } = req.user;
-      if (isAdmin(role)) {
-        const { date } = req.body;
-        const data = await Date_Times.findOne({ where: { date } });
-        if (data) {
+      const { date } = req.body;
+      const data = await Date_Times.findOne({ where: { date } });
+      if (data) {
+        if (isAdmin(role)) {
           res.status(200).json({ data: data.dataValues });
         } else {
-          res.status(200).json({ data: { date, time: '' } });
+          const processedData = Object.entries(data.dataValues.time)
+          .reduce((acc, [key, { user }]) => {
+            if (user) {
+              acc[key] = true;
+            } else {
+              acc[key] = false;
+            }
+            return acc;
+          }, {});
+          res.status(200).json({ data: { date: data.dataValues.date, time: processedData } });
         }
       } else {
-        res.status(401).json(false);
+        res.status(200).json({ data: { date, time: '' } });
       }
     } catch (e) {
       console.log(e);
@@ -58,15 +68,23 @@ class Calendar {
         if (timeKeys.includes(time)) {
           return res.status(200).json({ code: 2 });
         }
-        const newTime = Object.entries(dataValues.time).sort((a, b) => {
-          if (a[0] === oldTime) {
-            a[0] = time;
-          }
-          return a[0].localeCompare(b[0]);
-          }).reduce((acc, [key, value]) => {
+        const timeEntries = Object.entries(dataValues.time);
+        const newTime = timeEntries.length > 1
+        ? timeEntries
+          .sort((a, b) => {
+            if (a[0] === oldTime) {
+              a[0] = time;
+            }
+            if (b[0] === oldTime) {
+              b[0] = time;
+            }
+            return a[0].localeCompare(b[0]);
+          })
+          .reduce((acc, [key, value]) => {
             acc[key] = value;
-          return acc;
-          }, {});
+            return acc;
+            }, {})
+        : { [time]: timeEntries[0][1] };
         await Date_Times.update({ time: newTime }, { where: { date } });
         res.status(200).json({ time: newTime });
       } else {
@@ -118,8 +136,54 @@ class Calendar {
     try {
       const { dataValues: { role } } = req.user;
       if (isAdmin(role)) {
-        const { data } = req.body;
-        console.log(data)
+        const { date, time } = req.query;
+        const { dataValues } = await Date_Times.findOne({ where: { date } });
+        if (!dataValues.time.hasOwnProperty(time[0])) {
+          return res.status(200).json({ code: 2 });
+        } else {
+          const { user } = dataValues.time[time[0]];
+          if (user) {
+            await sendMailCancelRecording(user.username, user.email, time[1], time[0]);
+          }
+          const timeEntries = Object.entries(dataValues.time);
+          const newTime = timeEntries.length > 1
+          ? Object.entries(dataValues.time).reduce((acc, [key, value]) => {
+              if (key !== time[0]) {
+              acc[key] = value;
+              }
+              return acc;
+            }, {})
+          : '';
+          newTime
+          ? await Date_Times.update({ time: newTime }, { where: { date } })
+          : await Date_Times.destroy({ where: { date } });
+          res.status(200).json({ time: newTime });
+        }
+      }
+    } catch (e) {
+      console.log(e);
+      res.sendStatus(500);
+    }
+  }
+
+  async removeDate(req, res) {
+    try {
+      const { dataValues: { role } } = req.user;
+      if (isAdmin(role)) {
+        const { date, time } = req.query;
+        const data = await Date_Times.findOne({ where: { date } });
+        const { dataValues } = data ?? '';
+        if (dataValues) {
+          Object.entries(dataValues.time).forEach(async ([key, { user }]) => {
+            if (user) {
+              await sendMailCancelRecording(user.username, user.email, time, key);
+            }
+          });
+          await Date_Times.destroy({ where: { date } });
+          res.status(200).json({ code: 1 });
+        } else {
+          res.status(200).json({ code: 2 });
+        }
       }
     } catch (e) {
       console.log(e);

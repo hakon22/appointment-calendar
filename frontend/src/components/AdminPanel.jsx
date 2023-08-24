@@ -141,13 +141,13 @@ const AdminPanel = ({ date, stringDate }) => {
                                 title={key}
                               >
                                 <Dropdown.Item eventKey="1" onClick={() => modalShow({ time: key })}>{t('calendar.dropMenuChange')}</Dropdown.Item>
-                                <Dropdown.Item eventKey="2" onClick={() => modalShow({ time: key, act: 'remove' })}>{t('calendar.dropMenuRemove')}</Dropdown.Item>
+                                <Dropdown.Item eventKey="2" onClick={() => modalShow({ time: [key, stringDate], act: 'remove' })}>{t('calendar.dropMenuRemove')}</Dropdown.Item>
                               </DropdownButton>
                             );
                           })}
                         </div>
                         <NewDate date={date} time={time} />
-                        <Button variant="danger" size="sm" type="button" onClick={() => modalShow({ time: stringDate, act: 'removeDate' })}>{t('calendar.closeDate')}</Button>
+                        <Button variant="danger" size="sm" onClick={() => modalShow({ time: stringDate, act: 'removeDate' })}>{t('calendar.closeDate')}</Button>
                       </>
                     )
                     : date ? <NewDate date={date} /> : t('calendar.controlText')}

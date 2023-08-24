@@ -33,6 +33,7 @@ io.on('connection', (socket) => {
   socket.on('soketChangeTime', (data) => io.emit('soketChangeTime', data));
   socket.on('soketAddNewTime', (data) => io.emit('soketAddNewTime', data));
   socket.on('soketRemoveTime', (data) => io.emit('soketRemoveTime', data));
+  socket.on('soketRemoveDate', (data) => io.emit('soketRemoveDate', data));
 });
 
 server.listen(port, () => {

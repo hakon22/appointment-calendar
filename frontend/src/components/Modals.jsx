@@ -108,12 +108,11 @@ export const ModalTimesHandler = ({
 }) => {
   const { t } = useTranslation();
   const input = useRef();
-  const { soketChangeTime, soketRemoveTime } = useContext(ApiContext);
+  const { soketChangeTime, soketRemoveTime, soketRemoveDate } = useContext(ApiContext);
 
   const { token } = useSelector((state) => state.login);
 
   const { time, act, user } = obj;
-  console.log(user);
 
   const formik = useFormik({
     initialValues: {
@@ -142,21 +141,24 @@ export const ModalTimesHandler = ({
   });
 
   const formikRemoveTime = useFormik({
+    initialValues: {},
     onSubmit: async () => {
       try {
-        console.log(obj);
         const { data } = await axios.delete(routes.removeTime, {
-          data: time,
+          params: { date, time },
           headers: { Authorization: `Bearer ${token}` },
         });
-        console.log(data);
         if (data.time) {
           soketRemoveTime(data.time);
           onHide();
-          notify(t('toast.timeChangeSuccess'), 'success');
+          notify(t('toast.timeRemoveSuccess'), 'success');
         } else if (data.code === 2) {
           onHide();
           notify(t('toast.removeTimeError'), 'error');
+        } else if (!data.time) {
+          soketRemoveDate(date);
+          onHide();
+          notify(t('toast.closeDateSuccess'), 'success');
         }
       } catch (e) {
         notify(t('toast.unknownError'), 'error');
@@ -166,14 +168,20 @@ export const ModalTimesHandler = ({
   });
 
   const formikRemoveDate = useFormik({
+    initialValues: {},
     onSubmit: async () => {
       try {
-        const res = await axios.delete(`${routes.delete}`);
-        if (res.status === 200) {
+        const { data } = await axios.delete(routes.removeDate, {
+          params: { date, time },
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (data.code === 1) {
+          soketRemoveDate(date);
           onHide();
-          notify(t('toast.timeRemoveSuccess'), 'success');
-        } else {
-          notify(t('toast.error'), 'error');
+          notify(t('toast.closeDateSuccess'), 'success');
+        } else if (data.code === 2) {
+          onHide();
+          notify(t('toast.closeDateError'), 'error');
         }
       } catch (e) {
         notify(t('toast.unknownError'), 'error');
@@ -244,8 +252,8 @@ export const ModalTimesHandler = ({
         <Modal.Title>{act === 'removeDate' ? t('modal.removeDateTitle') : t('modal.removeTimeTitle')}</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        <p className="lead">{act === 'removeDate' ? t('modal.removeDateBody', { time }) : t('modal.removeTimeBody', { time })}</p>
-        {act === 'removeDate' && <p className="mb-4">{t('modal.removeDateBody2')}</p>}
+        <p className="lead">{act === 'removeDate' ? t('modal.removeDateBody', { time }) : t('modal.removeTimeBody', { time: time[0] })}</p>
+        {(act === 'removeDate' || user) && <p className="mb-4">{t('modal.removeDateBody2')}</p>}
         <div className="d-flex justify-content-end">
           <Form
             onSubmit={act === 'removeDate' ? formikRemoveDate.handleSubmit : formikRemoveTime.handleSubmit}

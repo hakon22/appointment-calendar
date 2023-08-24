@@ -103,6 +103,7 @@ const NewDate = ({ date, time }) => {
             })}
           >
             <Form.Control
+              autoFocus
               type="time"
               className="w-auto"
               name={value}

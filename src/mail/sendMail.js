@@ -39,4 +39,28 @@ const sendMail = async (id, username, email, code) => {
   });
 }
 
-module.exports = sendMail;
+const sendMailCancelRecording = async (username, email, date, time) => {
+  const to = lowerCase(email);
+  const subject = `Отмена записи на сайте ${siteName}`;
+
+  await transport.sendMail({
+    from: process.env.LOGIN, to,
+    subject,
+    html: `
+      <h3>Уважаемый ${upperCase(username)}!</h3>
+      <h4>У Вас была запись ${date} на ${time}.</h4>
+      <p>К сожалению, Вас не смогут принять.</p>
+      <p>Ваша запись была аннулирована.</p>
+      <p>Вы можете выбрать другое время приёма на нашем сайте: <a href="${siteName}" target="_blank">${siteName}</a></p>
+      <p>Приносим свои извинения.</p>
+    `
+  }, (error, data) => {
+    if (error) {
+      console.error('Ошибка при отправке:', error);
+    } else {
+      console.log('Сообщение отправлено!');
+    }
+  });
+}
+
+module.exports = { sendMail, sendMailCancelRecording };
