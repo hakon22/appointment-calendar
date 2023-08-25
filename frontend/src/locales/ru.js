@@ -32,6 +32,8 @@ export default {
       phone: 'Номер телефона',
       password: 'Пароль',
       time: 'Время записи',
+      recording: 'Записаться',
+      back: 'Назад',
     },
     activationForm: {
       title: 'Активация аккаунта',

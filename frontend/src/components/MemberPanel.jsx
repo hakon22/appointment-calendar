@@ -11,7 +11,6 @@ import { MobileContext } from './Context.jsx';
 import ConfirmRecord from './ConfirmRecord.jsx';
 
 const MemberPanel = ({ date, stringDate }) => {
-//  const dispatch = useDispatch();
   const { t } = useTranslation();
   const isMobile = useContext(MobileContext);
   const [status, setStatus] = useState(['home', null]);
@@ -86,8 +85,14 @@ const MemberPanel = ({ date, stringDate }) => {
             <Card.Body>
               <Card.Title className="mb-4">{t('calendar.confirmationTitle', { date: stringDate })}</Card.Title>
               <Card.Text as="div">
-                {status[1]
-                  && <ConfirmRecord date={date} stringDate={stringDate} time={status[1]} />}
+                {status[1] && (
+                <ConfirmRecord
+                  date={date}
+                  stringDate={stringDate}
+                  time={status[1]}
+                  setStatus={setStatus}
+                />
+                )}
               </Card.Text>
             </Card.Body>
           </Tab>
