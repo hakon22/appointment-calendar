@@ -74,6 +74,9 @@ export default {
       addNewTimeSuccess: 'Время успешно добавлено',
       removeTimeError: 'Такого времени не существует',
       closeDateError: 'Нет такой открытой даты',
+      recordingSuccess: 'Запись прошла успешно',
+      recordingTimeError: 'Это время недоступно для записи',
+      recordingDateError: 'Эта дата недоступна для записи',
     },
     calendar: {
       title: 'Календарь записи',

@@ -64,6 +64,8 @@ router.delete('/api/date/remove-time', passport.authenticate('jwt', { session: f
 
 router.delete('/api/date/remove-date', passport.authenticate('jwt', { session: false }), CalendarHandler.removeDate);
 
+router.post('/api/recording', passport.authenticate('jwt', { session: false }), CalendarHandler.recording);
+
 router.post('/api/activation/', Act.activation);
 
 router.get('/api/activation/:id', Act.needsActivation);

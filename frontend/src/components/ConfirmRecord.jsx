@@ -1,16 +1,19 @@
 import { Button, Form } from 'react-bootstrap';
+import { useContext } from 'react';
 import { useSelector } from 'react-redux';
 import { useFormik } from 'formik';
 import { useTranslation } from 'react-i18next';
 import InputMask from 'react-input-mask';
 import axios from 'axios';
 import notify from '../utilities/toast.js';
+import ApiContext from './Context.jsx';
 import routes from '../routes.js';
 
 const ConfirmRecord = ({
   date, stringDate, time, setStatus,
 }) => {
   const { t } = useTranslation();
+  const { soketRecording } = useContext(ApiContext);
   const {
     username, email, phone, token,
   } = useSelector((state) => state.login);
@@ -22,12 +25,23 @@ const ConfirmRecord = ({
       phone,
       time,
     },
-    onSubmit: async (values, { setFieldError, setSubmitting }) => {
+    onSubmit: async (values, { setSubmitting }) => {
       try {
-        const { data } = await axios.post(routes.recording, values, {
+        const { data } = await axios.post(routes.recording, { date, stringDate, time }, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        
+        if (data.code === 1) {
+          setStatus(['home', null]);
+          notify(t('toast.recordingSuccess'), 'success');
+        } else if (data.code === 2) {
+          setSubmitting(false);
+          setStatus(['recording', null]);
+          notify(t('toast.recordingTimeError'), 'error');
+        } else if (data.code === 3) {
+          setSubmitting(false);
+          setStatus(['recording', null]);
+          notify(t('toast.recordingDateError'), 'error');
+        }
       } catch (e) {
         notify(t('toast.unknownError'), 'error');
         console.log(e);

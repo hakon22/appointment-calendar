@@ -37,6 +37,9 @@ const calendarSlice = createSlice({
         state.time = '';
       }
     },
+    soketRecording: (state, { payload }) => {
+      state.time[payload] = true;
+    },
     removeData: (state) => {
       const entries = Object.keys(state);
       entries.forEach((key) => {
@@ -67,6 +70,12 @@ const calendarSlice = createSlice({
 });
 
 export const {
-  soketAddNewDate, soketChangeTime, soketAddNewTime, soketRemoveTime, soketRemoveDate, removeData,
+  soketAddNewDate,
+  soketChangeTime,
+  soketAddNewTime,
+  soketRemoveTime,
+  soketRemoveDate,
+  soketRecording,
+  removeData,
 } = calendarSlice.actions;
 export default calendarSlice.reducer;

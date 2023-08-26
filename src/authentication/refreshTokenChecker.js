@@ -1,12 +1,13 @@
 const JwtStrategy = require('passport-jwt').Strategy;
 const ExtractJwt = require('passport-jwt').ExtractJwt;
+require('dotenv').config();
 const Users = require('../db/tables/Users.js');
 const { generateAccessToken, generateRefreshToken } = require('./tokensGen.js');
  
  
 const optionsRefresh = {
   jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-  secretOrKey: 'refreshPutin',
+  secretOrKey: process.env.KEY_REFRESH_TOKEN,
 }
  
 module.exports = passport => {

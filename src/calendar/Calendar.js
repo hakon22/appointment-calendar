@@ -190,6 +190,29 @@ class Calendar {
       res.sendStatus(500);
     }
   }
+
+  async recording(req, res) {
+    try {
+      const { dataValues: { id, email, phone } } = req.user;
+      const { date, stringDate, time } = req.body;
+      const data = await Date_Times.findOne({ where: { date } });
+      const { dataValues } = data ?? '';
+      if (dataValues) {
+        if (dataValues.time[time]) {
+          dataValues.time[time] = { user: { id, email, phone } };
+          await Date_Times.update({ time: dataValues.time }, { where: { date } });
+          res.status(200).json({ code: 1 });
+        } else {
+          res.status(200).json({ code: 2 });
+        }
+      } else {
+        res.status(200).json({ code: 3 });
+      }
+    } catch (e) {
+      console.log(e);
+      res.sendStatus(500);
+    }
+  }
 }
 
 const CalendarHandler = new Calendar();
