@@ -1,5 +1,5 @@
 const Date_Times = require('../db/tables/Date_Times.js');
-const { sendMailCancelRecording } = require('../mail/sendMail.js');
+const { sendMailCancelRecording, sendMailRecordingSuccess } = require('../mail/sendMail.js');
 
 const isAdmin = (role) => role === 'admin';
 
@@ -41,7 +41,7 @@ class Calendar {
         const { date } = req.body; 
         const time = Object.values(req.body).reduce((acc, value) => {
           if (value !== date) {
-            acc[value] = { user: '' };
+            acc[value] = false;
           }
           return acc;
         }, {});
@@ -105,7 +105,7 @@ class Calendar {
         const timeKeys = Object.keys(dataValues.time);
         const time = Object.values(req.body).reduce((acc, value) => {
           if (value !== date) {
-            acc[value] = { user: '' };
+            acc[value] = false;
           }
           return acc;
         }, {});
@@ -143,7 +143,7 @@ class Calendar {
         } else {
           const { user } = dataValues.time[time[0]];
           if (user) {
-            await sendMailCancelRecording(user.username, user.email, time[1], time[0]);
+            // await sendMailCancelRecording(user.username, user.email, time[1], time[0]);
           }
           const timeEntries = Object.entries(dataValues.time);
           const newTime = timeEntries.length > 1
@@ -176,7 +176,7 @@ class Calendar {
         if (dataValues) {
           Object.entries(dataValues.time).forEach(async ([key, { user }]) => {
             if (user) {
-              await sendMailCancelRecording(user.username, user.email, time, key);
+              // await sendMailCancelRecording(user.username, user.email, time, key);
             }
           });
           await Date_Times.destroy({ where: { date } });
@@ -193,15 +193,16 @@ class Calendar {
 
   async recording(req, res) {
     try {
-      const { dataValues: { id, email, phone } } = req.user;
+      const { dataValues: { id, username, email, phone } } = req.user;
       const { date, stringDate, time } = req.body;
       const data = await Date_Times.findOne({ where: { date } });
       const { dataValues } = data ?? '';
       if (dataValues) {
-        if (dataValues.time[time]) {
-          dataValues.time[time] = { user: { id, email, phone } };
+        if (dataValues.time[time] !== undefined) {
+          dataValues.time[time] = { user: { id, username, email, phone } };
           await Date_Times.update({ time: dataValues.time }, { where: { date } });
           res.status(200).json({ code: 1 });
+          // await sendMailRecordingSuccess(username, email, stringDate, time);
         } else {
           res.status(200).json({ code: 2 });
         }

@@ -3,7 +3,12 @@ import { Provider } from 'react-redux';
 import { io } from 'socket.io-client';
 import { ToastContainer } from 'react-toastify';
 import {
-  soketAddNewDate, soketChangeTime, soketAddNewTime, soketRemoveTime, soketRemoveDate,
+  soketAddNewDate,
+  soketChangeTime,
+  soketAddNewTime,
+  soketRemoveTime,
+  soketRemoveDate,
+  soketRecording,
 } from '../slices/calendarSlice.js';
 import store from '../slices/index.js';
 import ApiContext, { MobileContext } from './Context.jsx';
@@ -21,6 +26,7 @@ const Settings = () => {
     soketAddNewTime: (data) => socketConnect('soketAddNewTime', data),
     soketRemoveTime: (data) => socketConnect('soketRemoveTime', data),
     soketRemoveDate: (data) => socketConnect('soketRemoveDate', data),
+    soketRecording: (data) => socketConnect('soketRecording', data),
   }), [socketConnect]);
 
   socket.on('soketAddNewDate', (data) => store.dispatch(soketAddNewDate(data)));
@@ -28,6 +34,7 @@ const Settings = () => {
   socket.on('soketAddNewTime', (data) => store.dispatch(soketAddNewTime(data)));
   socket.on('soketRemoveTime', (data) => store.dispatch(soketRemoveTime(data)));
   socket.on('soketRemoveDate', (data) => store.dispatch(soketRemoveDate(data)));
+  socket.on('soketRecording', (data) => store.dispatch(soketRecording(data)));
 
   return (
     <Provider store={store}>

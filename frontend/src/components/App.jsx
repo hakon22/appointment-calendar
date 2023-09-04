@@ -16,7 +16,8 @@ import Signup from '../pages/Signup.jsx';
 import Activation from '../pages/Activation.jsx';
 import { AuthContext } from './Context.jsx';
 import routes from '../routes.js';
-import { fetchTokenStorage } from '../slices/loginSlice.js';
+import { fetchTokenStorage, removeToken } from '../slices/loginSlice.js';
+import { removeData } from '../slices/calendarSlice.js';
 
 const App = () => {
   const { t } = useTranslation();
@@ -30,11 +31,11 @@ const App = () => {
     if (refreshTokenStorage) {
       localStorage.removeItem('refresh_token');
     }
-    if (!error) {
-      await axios.post(routes.deleteAuth, { id, refreshTokenStorage });
-    }
+    await axios.post(routes.deleteAuth, { id, refreshTokenStorage });
+    dispatch(removeToken());
+    dispatch(removeData());
     setLoggedIn(false);
-  }, [error, id]);
+  }, [dispatch, id]);
 
   const authServices = useMemo(() => ({ loggedIn, logIn, logOut }), [loggedIn, logOut]);
 

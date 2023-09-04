@@ -31,6 +31,7 @@ const ConfirmRecord = ({
           headers: { Authorization: `Bearer ${token}` },
         });
         if (data.code === 1) {
+          soketRecording({ date, time });
           setStatus(['home', null]);
           notify(t('toast.recordingSuccess'), 'success');
         } else if (data.code === 2) {

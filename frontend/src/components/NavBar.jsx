@@ -1,16 +1,12 @@
 import { useTranslation } from 'react-i18next';
 import { useContext } from 'react';
-import { useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { Navbar, Container, Button } from 'react-bootstrap';
 import { AuthContext } from './Context.jsx';
-import { removeToken } from '../slices/loginSlice.js';
-import { removeData } from '../slices/calendarSlice.js';
 import routes from '../routes.js';
 
 const NavBar = ({ loggedIn }) => {
   const { t } = useTranslation();
-  const dispatch = useDispatch();
   const { logOut } = useContext(AuthContext);
   return (
     <Navbar bg="white">
@@ -22,11 +18,7 @@ const NavBar = ({ loggedIn }) => {
             {loggedIn && (
             <Button
               variant="primary"
-              onClick={() => {
-                logOut();
-                dispatch(removeToken());
-                dispatch(removeData());
-              }}
+              onClick={logOut}
             >
               {t('navBar.exit')}
             </Button>

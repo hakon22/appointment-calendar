@@ -63,4 +63,26 @@ const sendMailCancelRecording = async (username, email, date, time) => {
   });
 }
 
-module.exports = { sendMail, sendMailCancelRecording };
+const sendMailRecordingSuccess = async (username, email, date, time) => {
+  const to = lowerCase(email);
+  const subject = `Запись на сайте ${siteName}`;
+
+  await transport.sendMail({
+    from: process.env.LOGIN, to,
+    subject,
+    html: `
+      <h3>Уважаемый ${upperCase(username)}!</h3>
+      <h4>Вы успешно записаны ${date} на ${time}.</h4>
+      <p>Пожалуйста, не опаздывайте!</p>
+      <p>С уважением, администрация <a href="${siteName}" target="_blank">${siteName}</a></p>
+    `
+  }, (error, data) => {
+    if (error) {
+      console.error('Ошибка при отправке:', error);
+    } else {
+      console.log('Сообщение отправлено!');
+    }
+  });
+}
+
+module.exports = { sendMail, sendMailCancelRecording, sendMailRecordingSuccess };

@@ -5,7 +5,7 @@
 import {
   useContext, useState, useEffect, useRef,
 } from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import {
   Button, Card, Tabs, Tab, Spinner, Badge, DropdownButton, ButtonGroup, Dropdown,
@@ -13,9 +13,11 @@ import {
 import { MobileContext } from './Context.jsx';
 import NewDate from './NewDate.jsx';
 import { ModalTimesHandler } from './Modals.jsx';
+import { fetchDate } from '../slices/calendarSlice.js';
 
 const AdminPanel = ({ date, stringDate }) => {
   const { t } = useTranslation();
+  const dispatch = useDispatch();
   const isMobile = useContext(MobileContext);
   const [nav, setNav] = useState('home');
   const scrollRef = useRef();
@@ -23,8 +25,9 @@ const AdminPanel = ({ date, stringDate }) => {
   const modalClose = () => setShow([false, { time: '', act: '', user: '' }]);
   const modalShow = ({ time, act = '', user = '' }) => setShow([true, { time, act, user }]);
 
-  const { username } = useSelector((state) => state.login);
+  const { username, token } = useSelector((state) => state.login);
   const { time, loadingStatus } = useSelector((state) => state.calendar);
+  const timeValues = time ? Object.values(time) : [];
 
   useEffect(() => {
     if (date && (nav === 'home' || nav === 'setup')) {
@@ -34,6 +37,14 @@ const AdminPanel = ({ date, stringDate }) => {
       scrollRef.current.scrollIntoView();
     }
   }, [date]);
+
+  useEffect(() => {
+    // eslint-disable-next-line no-return-await
+    const fetch = async () => await dispatch(fetchDate({ token, date }));
+    if (timeValues.includes(true)) {
+      fetch();
+    }
+  }, [timeValues]);
 
   return (
     <Card bg="light">
@@ -73,29 +84,20 @@ const AdminPanel = ({ date, stringDate }) => {
                   : time
                     ? (
                       <div className="d-flex flex-column gap-2">
-                        {Object.entries(time).map(([key, { user }], index) => {
-                          if (user) {
-                            return (
-                              <div key={key} className="d-flex">
-                                <Badge bg="info">{key}</Badge>
-                                <span>
-                                  {user.username}
-                                  {', '}
-                                </span>
-                                <span>
-                                  {user.phone}
-                                  {', '}
-                                </span>
-                                <span>
-                                  {user.email}
-                                </span>
-                              </div>
-                            );
-                          }
-                          if (index === Object.keys(time).length - 1 && !user) {
-                            return t('calendar.monitoringText');
-                          }
-                        })}
+                        {Object.values(time).find((value) => value)
+                          ? Object.entries(time).map(([key, value]) => {
+                            if (value.user) {
+                              const { user } = value;
+                              return (
+                                <div key={key} className="d-flex fs-5 justify-content-between align-items-center">
+                                  <Badge bg="success">{key}</Badge>
+                                  <Badge bg="info">{user.username}</Badge>
+                                  <Badge bg="info">{user.phone}</Badge>
+                                  <Badge bg="info">{user.email}</Badge>
+                                </div>
+                              );
+                            }
+                          }) : t('calendar.monitoringText')}
                       </div>
                     )
                     : t('calendar.monitoringCloseDay')}
@@ -117,8 +119,9 @@ const AdminPanel = ({ date, stringDate }) => {
                     ? (
                       <>
                         <div className="time-buttons-group gap-3 mb-5">
-                          {Object.entries(time).map(([key, { user }]) => {
-                            if (user) {
+                          {Object.entries(time).map(([key, value]) => {
+                            if (value.user) {
+                              const { user } = value;
                               return (
                                 <DropdownButton
                                   key={key}
@@ -126,9 +129,8 @@ const AdminPanel = ({ date, stringDate }) => {
                                   size="sm"
                                   variant="warning"
                                   title={key}
-                                  autoClose="inside"
                                 >
-                                  <Dropdown.Item eventKey="1" onClick={() => modalShow({ time: key, act: 'remove', user })}>{t('calendar.dropMenuСancel')}</Dropdown.Item>
+                                  <Dropdown.Item eventKey="1" onClick={() => modalShow({ time: [key, stringDate], act: 'remove', user })}>{t('calendar.dropMenuСancel')}</Dropdown.Item>
                                 </DropdownButton>
                               );
                             }

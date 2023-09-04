@@ -34,6 +34,7 @@ io.on('connection', (socket) => {
   socket.on('soketAddNewTime', (data) => io.emit('soketAddNewTime', data));
   socket.on('soketRemoveTime', (data) => io.emit('soketRemoveTime', data));
   socket.on('soketRemoveDate', (data) => io.emit('soketRemoveDate', data));
+  socket.on('soketRecording', (data) => io.emit('soketRecording', data));
 });
 
 server.listen(port, () => {

@@ -60,17 +60,17 @@ const MemberPanel = ({ date, stringDate }) => {
                   : time
                     && (
                       <div className="time-buttons-group gap-3 mb-5">
-                        {Object.entries(time).map(([key, { user }]) => (
+                        {Object.entries(time).map(([key, value]) => (
                           <Button
                             key={key}
-                            variant="outline-primary"
+                            variant={value ? 'outline-danger' : 'outline-primary'}
                             onClick={() => {
-                              if (!user) {
+                              if (!value) {
                                 setStatus(['confirmation', key]);
                               }
                             }}
                             size="sm"
-                            disabled={user}
+                            disabled={value}
                           >
                             {key}
                           </Button>

@@ -4,8 +4,8 @@ import routes from '../routes.js';
 
 export const fetchDate = createAsyncThunk(
   'calendar/fetchDate',
-  async ({ token, date, stringDate }) => {
-    const response = await axios.post(routes.getDate, { date, stringDate }, {
+  async ({ token, date }) => {
+    const response = await axios.post(routes.getDate, { date }, {
       headers: { Authorization: `Bearer ${token}` },
     });
     return response.data;
@@ -37,13 +37,15 @@ const calendarSlice = createSlice({
         state.time = '';
       }
     },
-    soketRecording: (state, { payload }) => {
-      state.time[payload] = true;
+    soketRecording: (state, { payload: { date, time } }) => {
+      if (date === state.currentDate) {
+        state.time[time] = true;
+      }
     },
     removeData: (state) => {
       const entries = Object.keys(state);
       entries.forEach((key) => {
-        if (key !== 'loadingStatus') {
+        if (key !== 'loadingStatus' && key !== 'error') {
           state[key] = '';
         }
       });
