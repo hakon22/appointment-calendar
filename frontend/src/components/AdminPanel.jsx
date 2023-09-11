@@ -27,7 +27,7 @@ const AdminPanel = ({ date, stringDate }) => {
 
   const { username, token } = useSelector((state) => state.login);
   const { time, loadingStatus } = useSelector((state) => state.calendar);
-  const timeValues = time ? Object.values(time) : [];
+  const timeValues = time || {};
 
   useEffect(() => {
     if (date && (nav === 'home' || nav === 'setup')) {
@@ -39,10 +39,8 @@ const AdminPanel = ({ date, stringDate }) => {
   }, [date]);
 
   useEffect(() => {
-    // eslint-disable-next-line no-return-await
-    const fetch = async () => await dispatch(fetchDate({ token, date }));
-    if (timeValues.includes(true)) {
-      fetch();
+    if (Object.values(timeValues).includes(true)) {
+      dispatch(fetchDate({ token, date }));
     }
   }, [timeValues]);
 

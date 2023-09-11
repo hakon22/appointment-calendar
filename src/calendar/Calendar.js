@@ -1,4 +1,5 @@
 const Date_Times = require('../db/tables/Date_Times.js');
+const Users = require('../db/tables/Users.js');
 const { sendMailCancelRecording, sendMailRecordingSuccess } = require('../mail/sendMail.js');
 
 const isAdmin = (role) => role === 'admin';
@@ -193,7 +194,7 @@ class Calendar {
 
   async recording(req, res) {
     try {
-      const { dataValues: { id, username, email, phone } } = req.user;
+      const { dataValues: { id, username, email, phone, record } } = req.user;
       const { date, stringDate, time } = req.body;
       const data = await Date_Times.findOne({ where: { date } });
       const { dataValues } = data ?? '';
@@ -201,6 +202,8 @@ class Calendar {
         if (dataValues.time[time] !== undefined) {
           dataValues.time[time] = { user: { id, username, email, phone } };
           await Date_Times.update({ time: dataValues.time }, { where: { date } });
+          const recordArray = record[date] ? record[date].push(time) : record[date] = [time];
+          await Users.update({ record: recordArray }, { where: { id } });
           res.status(200).json({ code: 1 });
           // await sendMailRecordingSuccess(username, email, stringDate, time);
         } else {
