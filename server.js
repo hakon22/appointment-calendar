@@ -27,14 +27,15 @@ app.get('*', (req, res) => {
 });
 
 io.on('connection', (socket) => {
-  console.log('user connected');
-
   socket.on('soketAddNewDate', (data) => io.emit('soketAddNewDate', data));
   socket.on('soketChangeTime', (data) => io.emit('soketChangeTime', data));
   socket.on('soketAddNewTime', (data) => io.emit('soketAddNewTime', data));
   socket.on('soketRemoveTime', (data) => io.emit('soketRemoveTime', data));
   socket.on('soketRemoveDate', (data) => io.emit('soketRemoveDate', data));
   socket.on('soketRecording', (data) => io.emit('soketRecording', data));
+  socket.on('soketRemoveRecord', (data) => io.emit('soketRemoveRecord', data));
+  socket.on('soketRemoveRecordAdmin', (data) => io.emit('soketRemoveRecordAdmin', data));
+  socket.on('soketRemoveDateAdmin', (data) => io.emit('soketRemoveDateAdmin', data));
 });
 
 server.listen(port, () => {

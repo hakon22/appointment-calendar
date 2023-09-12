@@ -23,11 +23,15 @@ const calendarSlice = createSlice({
         state.time = time;
       }
     },
-    soketChangeTime: (state, { payload }) => {
-      state.time = payload;
+    soketChangeTime: (state, { payload: { date, time } }) => {
+      if (date === state.currentDate && state.time) {
+        state.time = time;
+      }
     },
-    soketAddNewTime: (state, { payload }) => {
-      state.time = payload;
+    soketAddNewTime: (state, { payload: { date, time } }) => {
+      if (date === state.currentDate && state.time) {
+        state.time = time;
+      }
     },
     soketRemoveTime: (state, { payload }) => {
       state.time = payload;
@@ -35,6 +39,11 @@ const calendarSlice = createSlice({
     soketRemoveDate: (state, { payload }) => {
       if (payload === state.currentDate) {
         state.time = '';
+      }
+    },
+    soketRemoveRecord: (state, { payload: { date, time } }) => {
+      if (date === state.currentDate && state.time) {
+        state.time[time] = false;
       }
     },
     soketRecording: (state, { payload: { date, time } }) => {
@@ -47,6 +56,13 @@ const calendarSlice = createSlice({
       entries.forEach((key) => {
         if (key !== 'loadingStatus' && key !== 'error') {
           state[key] = '';
+        } else {
+          if (key === 'loadingStatus') {
+            state[key] = 'idle';
+          }
+          if (key === 'error') {
+            state[key] = null;
+          }
         }
       });
     },
@@ -78,6 +94,7 @@ export const {
   soketRemoveTime,
   soketRemoveDate,
   soketRecording,
+  soketRemoveRecord,
   removeData,
 } = calendarSlice.actions;
 export default calendarSlice.reducer;

@@ -8,9 +8,15 @@
 .react-calendar button {
   &.react-calendar__tile {
     border-radius: 10%;
-    .open-date {
-      border: 1px solid green;
+
+    &:disabled {
+      background: none;
     }
+  }
+
+  &.react-calendar__month-view__days__day--weekend:disabled,
+  &.react-calendar__month-view__days__day--neighboringMonth:disabled {
+    color: rgba(16, 16, 16, 0.3);
   }
 }
 
@@ -30,6 +36,10 @@
 .time-buttons-group {
   display: grid;
   grid-template-columns: repeat(6, max-content);
+}
+
+.remove-button {
+  color: red;
 }
 
 @keyframes show {

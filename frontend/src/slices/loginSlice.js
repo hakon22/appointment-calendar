@@ -69,8 +69,11 @@ const loginSlice = createSlice({
     removeToken: (state) => {
       const entries = Object.keys(state);
       entries.forEach((key) => {
-        if (key !== 'loadingStatus') {
+        if (key !== 'loadingStatus' && key !== 'record') {
           state[key] = null;
+        }
+        if (key === 'record') {
+          state[key] = {};
         }
       });
     },
@@ -83,6 +86,29 @@ const loginSlice = createSlice({
     },
     changeEmailActivation: (state, { payload }) => {
       state.email = payload;
+    },
+    addRecord: (state, { payload }) => {
+      state.record = payload;
+    },
+    removeRecord: (state, { payload }) => {
+      state.record = payload;
+    },
+    soketRemoveRecordAdmin: (state, { payload: { record, userId } }) => {
+      if (state.id === userId) {
+        state.record = record;
+      }
+    },
+    soketRemoveDateAdmin: (state, { payload: { idArray, date } }) => {
+      if (idArray.includes(state.id)) {
+        state.record = Object.entries(state.record).reduce((acc, [key, value]) => {
+          if (key !== date) {
+            acc[key] = value;
+          } else {
+            return acc;
+          }
+          return acc;
+        }, {});
+      }
     },
   },
   extraReducers: (builder) => {
@@ -168,5 +194,13 @@ const loginSlice = createSlice({
   },
 });
 
-export const { removeToken, addTokenStorage, changeEmailActivation } = loginSlice.actions;
+export const {
+  removeToken,
+  addTokenStorage,
+  changeEmailActivation,
+  addRecord,
+  removeRecord,
+  soketRemoveRecordAdmin,
+  soketRemoveDateAdmin,
+} = loginSlice.actions;
 export default loginSlice.reducer;

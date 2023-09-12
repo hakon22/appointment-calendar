@@ -1,4 +1,4 @@
-import { Button, Form } from 'react-bootstrap';
+import { Button, Form, Spinner } from 'react-bootstrap';
 import { useState, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useFormik } from 'formik';
@@ -34,10 +34,10 @@ const NewDate = ({ date, time }) => {
           const { data } = await axios.patch(routes.addNewTime, values, {
             headers: { Authorization: `Bearer ${token}` },
           });
-          if (data.time) {
+          if (data.code === 1) {
             resetForm({ values: date });
             setField([]);
-            soketAddNewTime(data.time);
+            soketAddNewTime(data);
             notify(t('toast.addNewTimeSuccess'), 'success');
           } else if (data.code === 2) {
             setSubmitting(false);
@@ -124,7 +124,17 @@ const NewDate = ({ date, time }) => {
           'mb-4': time,
         })}
         >
-          <Button variant="primary" type="submit" size="sm" disabled={formik.isSubmitting}>{t('calendar.newDate.saveTimes')}</Button>
+          <Button variant="primary" type="submit" size="sm" disabled={formik.isSubmitting}>
+            {formik.isSubmitting ? (
+              <Spinner
+                as="span"
+                animation="border"
+                size="sm"
+                role="status"
+                aria-hidden="true"
+              />
+            ) : t('calendar.newDate.saveTimes')}
+          </Button>
           <Button variant="outline-primary" type="button" size="sm" onClick={incrementField} disabled={formik.isSubmitting}>{t('calendar.newDate.addField')}</Button>
         </div>
       </Form>

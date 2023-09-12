@@ -5,28 +5,40 @@ import {
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import {
-  Button, Card, Tabs, Tab, Spinner,
+  Button, Card, Tabs, Tab, Spinner, Badge, ButtonGroup, Dropdown, DropdownButton,
 } from 'react-bootstrap';
+import { isEmpty } from 'lodash';
 import { MobileContext } from './Context.jsx';
 import ConfirmRecord from './ConfirmRecord.jsx';
 
-const MemberPanel = ({ date, stringDate }) => {
+const MemberPanel = ({ date, stringDate, modalShow }) => {
   const { t } = useTranslation();
   const isMobile = useContext(MobileContext);
   const [status, setStatus] = useState(['home', null]);
   const scrollRef = useRef();
 
-  const { username } = useSelector((state) => state.login);
+  const { username, record } = useSelector((state) => state.login);
   const { time, loadingStatus } = useSelector((state) => state.calendar);
 
   useEffect(() => {
-    if (date && (status[0] === 'home' || status[0] === 'setup' || status[0] === 'confirmation')) {
+    if (date && (
+      status[0] === 'home'
+    || status[0] === 'setup'
+    || status[0] === 'confirmation'
+    || status[0] === 'myRecords'
+    )) {
       setStatus(['recording', null]);
     }
     if (date && time) {
       scrollRef.current.scrollIntoView();
     }
   }, [date]);
+
+  useEffect(() => {
+    if (isEmpty(record) && status[0] === 'myRecords') {
+      setStatus(['home', null]);
+    }
+  }, [record]);
 
   return (
     <Card bg="light">
@@ -43,6 +55,36 @@ const MemberPanel = ({ date, stringDate }) => {
               <Card.Title>{t('calendar.homeTitle', { username })}</Card.Title>
               <Card.Text>
                 {isMobile ? t('calendar.homeTextMobile') : t('calendar.homeText')}
+              </Card.Text>
+            </Card.Body>
+          </Tab>
+          <Tab eventKey="myRecords" title={t('calendar.tabs.myRecords')} disabled={isEmpty(record)}>
+            <hr />
+            <Card.Body>
+              <Card.Title className="mb-4">{t('calendar.myRecordsText')}</Card.Title>
+              <Card.Text as="div">
+                {!isEmpty(record) && Object.entries(record).map(([key, value]) => (
+                  <div key={key} className="d-flex flex-column fs-5 gap-3">
+                    <Badge bg="secondary">
+                      {value.stringDate}
+                      :
+                    </Badge>
+                    <div className="d-flex fs-5 align-items-center gap-3 mb-5">
+                      {value.time.map((valueTime) => (
+                        <div key={`${valueTime}${value.stringDate}`} className="d-flex gap-1 align-items-center">
+                          <DropdownButton
+                            as={ButtonGroup}
+                            size="sm"
+                            variant="success"
+                            title={valueTime}
+                          >
+                            <Dropdown.Item eventKey="1" onClick={() => modalShow({ time: [valueTime, key], act: 'removeRecord', user: true })}>{t('calendar.dropMenuСancel')}</Dropdown.Item>
+                          </DropdownButton>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
               </Card.Text>
             </Card.Body>
           </Tab>

@@ -10,20 +10,18 @@ import { useTranslation } from 'react-i18next';
 import {
   Button, Card, Tabs, Tab, Spinner, Badge, DropdownButton, ButtonGroup, Dropdown,
 } from 'react-bootstrap';
+import { Bucket } from 'react-bootstrap-icons';
+import cn from 'classnames';
 import { MobileContext } from './Context.jsx';
 import NewDate from './NewDate.jsx';
-import { ModalTimesHandler } from './Modals.jsx';
 import { fetchDate } from '../slices/calendarSlice.js';
 
-const AdminPanel = ({ date, stringDate }) => {
+const AdminPanel = ({ date, stringDate, modalShow }) => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
   const isMobile = useContext(MobileContext);
   const [nav, setNav] = useState('home');
   const scrollRef = useRef();
-  const [show, setShow] = useState([false, { time: '', act: '', user: '' }]);
-  const modalClose = () => setShow([false, { time: '', act: '', user: '' }]);
-  const modalShow = ({ time, act = '', user = '' }) => setShow([true, { time, act, user }]);
 
   const { username, token } = useSelector((state) => state.login);
   const { time, loadingStatus } = useSelector((state) => state.calendar);
@@ -46,12 +44,6 @@ const AdminPanel = ({ date, stringDate }) => {
 
   return (
     <Card bg="light">
-      <ModalTimesHandler
-        date={date}
-        obj={show[1]}
-        show={show[0]}
-        onHide={modalClose}
-      />
       <Card.Header ref={scrollRef}>
         <Tabs
           activeKey={nav}
@@ -87,15 +79,56 @@ const AdminPanel = ({ date, stringDate }) => {
                             if (value.user) {
                               const { user } = value;
                               return (
-                                <div key={key} className="d-flex fs-5 justify-content-between align-items-center">
-                                  <Badge bg="success">{key}</Badge>
-                                  <Badge bg="info">{user.username}</Badge>
-                                  <Badge bg="info">{user.phone}</Badge>
-                                  <Badge bg="info">{user.email}</Badge>
+                                <div key={key} className="d-flex flex-wrap gap-1 justify-content-between align-items-center">
+                                  <Badge
+                                    bg="success"
+                                    className={cn('fs-6', {
+                                      'col-10 d-flex justify-content-center align-items-center': isMobile,
+                                    })}
+                                  >
+                                    {key}
+                                  </Badge>
+                                  {isMobile && (
+                                  <Bucket
+                                    role="button"
+                                    className="fs-4 remove-button ms-2"
+                                    onClick={() => modalShow({ time: [key, stringDate], act: 'removeRecord' })}
+                                    title={t('modal.submitRemove')}
+                                  />
+                                  )}
+                                  <span className={cn({
+                                    'col-12': isMobile,
+                                  })}
+                                  >
+                                    {user.username}
+                                  </span>
+                                  <span className={cn({
+                                    'col-12': isMobile,
+                                  })}
+                                  >
+                                    {user.phone}
+                                  </span>
+                                  <span className={cn({
+                                    'col-12 mb-2': isMobile,
+                                  })}
+                                  >
+                                    {user.email}
+                                  </span>
+                                  {!isMobile && (
+                                  <Bucket
+                                    role="button"
+                                    className="fs-4 remove-button"
+                                    onClick={() => modalShow({ time: [key, stringDate], act: 'removeRecord' })}
+                                    title={t('modal.submitRemove')}
+                                  />
+                                  )}
                                 </div>
                               );
                             }
                           }) : t('calendar.monitoringText')}
+                        <div>
+                          <Button className="mt-3" variant="danger" size="sm" onClick={() => modalShow({ time: stringDate, act: 'removeDate' })}>{t('calendar.closeDate')}</Button>
+                        </div>
                       </div>
                     )
                     : t('calendar.monitoringCloseDay')}
@@ -119,7 +152,6 @@ const AdminPanel = ({ date, stringDate }) => {
                         <div className="time-buttons-group gap-3 mb-5">
                           {Object.entries(time).map(([key, value]) => {
                             if (value.user) {
-                              const { user } = value;
                               return (
                                 <DropdownButton
                                   key={key}
@@ -128,7 +160,7 @@ const AdminPanel = ({ date, stringDate }) => {
                                   variant="warning"
                                   title={key}
                                 >
-                                  <Dropdown.Item eventKey="1" onClick={() => modalShow({ time: [key, stringDate], act: 'remove', user })}>{t('calendar.dropMenuСancel')}</Dropdown.Item>
+                                  <Dropdown.Item eventKey="1" onClick={() => modalShow({ time: [key, stringDate], act: 'removeRecord' })}>{t('calendar.dropMenuСancel')}</Dropdown.Item>
                                 </DropdownButton>
                               );
                             }

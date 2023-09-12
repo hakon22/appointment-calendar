@@ -1,13 +1,15 @@
 import { useRef, useContext } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Form, Modal, Button } from 'react-bootstrap';
+import {
+  Form, Modal, Button, Spinner,
+} from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useFormik } from 'formik';
 import axios from 'axios';
 import routes from '../routes.js';
 import ApiContext from './Context.jsx';
-import { changeEmailActivation } from '../slices/loginSlice.js';
+import { changeEmailActivation, removeRecord } from '../slices/loginSlice.js';
 import notify from '../utilities/toast.js';
 import { emailValidation, timeValidation } from '../validations/validations.js';
 
@@ -94,7 +96,15 @@ export const ModalChangeActivationEmail = ({
               {t('modal.close')}
             </Button>
             <Button variant="success" type="submit" disabled={formik.isSubmitting}>
-              {t('modal.submitChange')}
+              {formik.isSubmitting ? (
+                <Spinner
+                  as="span"
+                  animation="border"
+                  size="sm"
+                  role="status"
+                  aria-hidden="true"
+                />
+              ) : t('modal.submitChange')}
             </Button>
           </div>
         </Form>
@@ -107,8 +117,16 @@ export const ModalTimesHandler = ({
   date, obj, onHide, show,
 }) => {
   const { t } = useTranslation();
+  const dispatch = useDispatch();
   const input = useRef();
-  const { soketChangeTime, soketRemoveTime, soketRemoveDate } = useContext(ApiContext);
+  const {
+    soketChangeTime,
+    soketRemoveTime,
+    soketRemoveDate,
+    soketRemoveRecord,
+    soketRemoveRecordAdmin,
+    soketRemoveDateAdmin,
+  } = useContext(ApiContext);
 
   const { token } = useSelector((state) => state.login);
 
@@ -125,8 +143,8 @@ export const ModalTimesHandler = ({
         const { data } = await axios.patch(routes.changeTime, patchData, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        if (data.time) {
-          soketChangeTime(data.time);
+        if (data.code === 1) {
+          soketChangeTime(data);
           onHide();
           notify(t('toast.timeChangeSuccess'), 'success');
         } else if (data.code === 2) {
@@ -167,6 +185,38 @@ export const ModalTimesHandler = ({
     },
   });
 
+  const formikRemoveRecord = useFormik({
+    initialValues: {},
+    onSubmit: async () => {
+      try {
+        const object = user ? { date: time[1], time: [time[0]] } : { date, time };
+        const { data } = await axios.patch(routes.removeRecord, object, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (data.code === 1) {
+          if (user) {
+            soketRemoveRecord({ date: time[1], time: time[0] });
+            dispatch(removeRecord(data.newRecords));
+          } else {
+            soketRemoveRecord({ date, time: time[0] });
+            soketRemoveRecordAdmin({ record: data.newRecords, userId: data.userId });
+          }
+          onHide();
+          notify(t('toast.recordRemoveSuccess'), 'success');
+        } else if (data.code === 2) {
+          onHide();
+          notify(t('toast.removeTimeError'), 'error');
+        } else if (data.code === 3) {
+          onHide();
+          notify(t('toast.removeRecordError'), 'error');
+        }
+      } catch (e) {
+        notify(t('toast.unknownError'), 'error');
+        console.log(e);
+      }
+    },
+  });
+
   const formikRemoveDate = useFormik({
     initialValues: {},
     onSubmit: async () => {
@@ -177,6 +227,7 @@ export const ModalTimesHandler = ({
         });
         if (data.code === 1) {
           soketRemoveDate(date);
+          soketRemoveDateAdmin({ idArray: data.idArray, date });
           onHide();
           notify(t('toast.closeDateSuccess'), 'success');
         } else if (data.code === 2) {
@@ -190,11 +241,39 @@ export const ModalTimesHandler = ({
     },
   });
 
-  return !act ? (
+  const selectActions = (action) => {
+    if (action === 'remove') {
+      return {
+        submit: formikRemoveTime.handleSubmit,
+        isSubmit: formikRemoveTime.isSubmitting,
+        title: t('modal.removeTimeTitle'),
+        body: t('modal.removeTimeBody', { time: time[0] }),
+        button: t('modal.submitRemove'),
+      };
+    }
+    if (action === 'removeDate') {
+      return {
+        submit: formikRemoveDate.handleSubmit,
+        isSubmit: formikRemoveDate.isSubmitting,
+        title: t('modal.removeDateTitle'),
+        body: t('modal.removeDateBody', { time }),
+        button: t('modal.submitRemove'),
+      };
+    }
+    return {
+      submit: formikRemoveRecord.handleSubmit,
+      isSubmit: formikRemoveRecord.isSubmitting,
+      title: t('modal.removeRecordTitle'),
+      body: t('modal.removeRecordBody', { time: time[0] }),
+      button: t('modal.submitCancel'),
+    };
+  };
+
+  return act === '' ? (
     <Modal
       show={show}
       onHide={() => {
-        onHide();
+        onHide(time, act);
         formik.errors.time = '';
       }}
       centered
@@ -233,40 +312,56 @@ export const ModalTimesHandler = ({
               className="me-2"
               variant="secondary"
               onClick={() => {
-                onHide();
+                onHide(time, act);
                 formik.errors.time = '';
               }}
             >
               {t('modal.close')}
             </Button>
             <Button variant="success" type="submit" disabled={formik.isSubmitting}>
-              {t('modal.submitChange')}
+              {formik.isSubmitting ? (
+                <Spinner
+                  as="span"
+                  animation="border"
+                  size="sm"
+                  role="status"
+                  aria-hidden="true"
+                />
+              ) : t('modal.submitChange')}
             </Button>
           </div>
         </Form>
       </Modal.Body>
     </Modal>
-  ) : (
-    <Modal show={show} onHide={onHide} centered>
+  ) : act && (
+    <Modal show={show} onHide={() => onHide(time, act)} centered>
       <Modal.Header closeButton>
-        <Modal.Title>{act === 'removeDate' ? t('modal.removeDateTitle') : t('modal.removeTimeTitle')}</Modal.Title>
+        <Modal.Title>{selectActions(act).title}</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        <p className="lead">{act === 'removeDate' ? t('modal.removeDateBody', { time }) : t('modal.removeTimeBody', { time: time[0] })}</p>
-        {(act === 'removeDate' || user) && <p className="mb-4">{t('modal.removeDateBody2')}</p>}
+        <p className="lead">{selectActions(act).body}</p>
+        {(act === 'removeDate' || act === 'remove') && <p className="mb-4">{t('modal.removeDateBody2')}</p>}
         <div className="d-flex justify-content-end">
           <Form
-            onSubmit={act === 'removeDate' ? formikRemoveDate.handleSubmit : formikRemoveTime.handleSubmit}
+            onSubmit={selectActions(act).submit}
           >
-            <Button className="me-2" variant="secondary" onClick={onHide}>
+            <Button className="me-2" variant="secondary" onClick={() => onHide(time, act)}>
               {t('modal.close')}
             </Button>
             <Button
               variant="danger"
               type="submit"
-              disabled={act === 'removeDate' ? formikRemoveDate.isSubmitting : formikRemoveTime.isSubmitting}
+              disabled={selectActions(act).isSubmit}
             >
-              {t('modal.submitRemove')}
+              {selectActions(act).isSubmit ? (
+                <Spinner
+                  as="span"
+                  animation="border"
+                  size="sm"
+                  role="status"
+                  aria-hidden="true"
+                />
+              ) : selectActions(act).button}
             </Button>
           </Form>
         </div>

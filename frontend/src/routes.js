@@ -20,6 +20,7 @@ export default {
   changeTime: [apiPath, 'date/change-time'].join('/'),
   addNewTime: [apiPath, 'date/add-new-time'].join('/'),
   removeTime: [apiPath, 'date/remove-time'].join('/'),
+  removeRecord: [apiPath, 'date/remove-record'].join('/'),
   recording: [apiPath, 'recording'].join('/'),
   checkRole: [apiPath, 'get-role'].join('/'),
 };

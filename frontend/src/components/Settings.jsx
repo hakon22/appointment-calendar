@@ -9,7 +9,9 @@ import {
   soketRemoveTime,
   soketRemoveDate,
   soketRecording,
+  soketRemoveRecord,
 } from '../slices/calendarSlice.js';
+import { soketRemoveRecordAdmin, soketRemoveDateAdmin } from '../slices/loginSlice.js';
 import store from '../slices/index.js';
 import ApiContext, { MobileContext } from './Context.jsx';
 import App from './App.jsx';
@@ -27,6 +29,9 @@ const Settings = () => {
     soketRemoveTime: (data) => socketConnect('soketRemoveTime', data),
     soketRemoveDate: (data) => socketConnect('soketRemoveDate', data),
     soketRecording: (data) => socketConnect('soketRecording', data),
+    soketRemoveRecord: (data) => socketConnect('soketRemoveRecord', data),
+    soketRemoveRecordAdmin: (data) => socketConnect('soketRemoveRecordAdmin', data),
+    soketRemoveDateAdmin: (data) => socketConnect('soketRemoveDateAdmin', data),
   }), [socketConnect]);
 
   socket.on('soketAddNewDate', (data) => store.dispatch(soketAddNewDate(data)));
@@ -35,6 +40,9 @@ const Settings = () => {
   socket.on('soketRemoveTime', (data) => store.dispatch(soketRemoveTime(data)));
   socket.on('soketRemoveDate', (data) => store.dispatch(soketRemoveDate(data)));
   socket.on('soketRecording', (data) => store.dispatch(soketRecording(data)));
+  socket.on('soketRemoveRecord', (data) => store.dispatch(soketRemoveRecord(data)));
+  socket.on('soketRemoveRecordAdmin', (data) => store.dispatch(soketRemoveRecordAdmin(data)));
+  socket.on('soketRemoveDateAdmin', (data) => store.dispatch(soketRemoveDateAdmin(data)));
 
   return (
     <Provider store={store}>

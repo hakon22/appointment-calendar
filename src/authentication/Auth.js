@@ -58,6 +58,7 @@ class Authentication {
         id,
         role,
         phone,
+        record,
       } = user;
       if (!user.refresh_token) {
         await Users.update({ refresh_token: [refreshToken] }, { where: { email } });
@@ -67,7 +68,7 @@ class Authentication {
       } else {
         await Users.update({ refresh_token: [refreshToken] }, { where: { email } });
       }
-      res.status(200).send({ token, refreshToken, username, id, role, email, phone });
+      res.status(200).send({ token, refreshToken, username, id, role, email, phone, record });
     } catch (e) {
       console.log(e);
       res.sendStatus(500);
@@ -76,7 +77,7 @@ class Authentication {
 
   async updateTokens(req, res) {
     try {
-      const { dataValues: { id, username, role, refresh_token, email, phone }, token, refreshToken } = req.user;
+      const { dataValues: { id, username, role, refresh_token, email, phone, record }, token, refreshToken } = req.user;
       const oldRefreshToken = req.get('Authorization').split(' ')[1];
       const availabilityRefresh = refresh_token.find((token) => token === oldRefreshToken);
       if (availabilityRefresh) {
@@ -86,7 +87,7 @@ class Authentication {
       } else {
         throw new Error('Ошибка доступа');
       } 
-      res.status(200).send({ id, username, role, token, refreshToken, email, phone });
+      res.status(200).send({ id, username, role, token, refreshToken, email, phone, record });
     } catch (e) {
       console.log(e);
       res.sendStatus(401);

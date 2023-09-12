@@ -1,3 +1,4 @@
+const e = require('express');
 const Date_Times = require('../db/tables/Date_Times.js');
 const Users = require('../db/tables/Users.js');
 const { sendMailCancelRecording, sendMailRecordingSuccess } = require('../mail/sendMail.js');
@@ -48,7 +49,7 @@ class Calendar {
         }, {});
         const data = await Date_Times.create({ date, time });
         if (data) {
-          res.status(200).json(data.dataValues);
+          res.status(200).json({ date: data.dataValues.date, time: data.dataValues.time});
         }
       } else {
         res.status(401).json(false);
@@ -87,7 +88,7 @@ class Calendar {
             }, {})
         : { [time]: timeEntries[0][1] };
         await Date_Times.update({ time: newTime }, { where: { date } });
-        res.status(200).json({ time: newTime });
+        res.status(200).json({ code: 1, time: newTime, date });
       } else {
         res.status(401).json(false);
       }
@@ -112,7 +113,7 @@ class Calendar {
         }, {});
         const postTimeValues = Object.keys(time);
         const coincidence = timeKeys.filter((key) => postTimeValues.indexOf(key) !== -1);
-        if (!coincidence.length > 0) {
+        if (!coincidence.length) {
           const newTimeObject = { ...dataValues.time, ...time };
           const sortTimeObject = Object.entries(newTimeObject).sort((a, b) => a[0].localeCompare(b[0]));
           const newTime = sortTimeObject.reduce((acc, [key, value]) => {
@@ -120,7 +121,7 @@ class Calendar {
           return acc;
           }, {});
           await Date_Times.update({ time: newTime }, { where: { date } });
-          res.status(200).json({ time: newTime });
+          res.status(200).json({ code: 1, time: newTime, date });
         } else {
           res.status(200).json({ code: 2, errorFields: coincidence });
         }
@@ -149,11 +150,11 @@ class Calendar {
           const timeEntries = Object.entries(dataValues.time);
           const newTime = timeEntries.length > 1
           ? Object.entries(dataValues.time).reduce((acc, [key, value]) => {
-              if (key !== time[0]) {
-              acc[key] = value;
-              }
-              return acc;
-            }, {})
+            if (key !== time[0]) {
+            acc[key] = value;
+            }
+            return acc;
+          }, {})
           : '';
           newTime
           ? await Date_Times.update({ time: newTime }, { where: { date } })
@@ -175,15 +176,86 @@ class Calendar {
         const data = await Date_Times.findOne({ where: { date } });
         const { dataValues } = data ?? '';
         if (dataValues) {
+          const idArray = [];
           Object.entries(dataValues.time).forEach(async ([key, { user }]) => {
             if (user) {
+              if (!idArray.includes(user.id)) {
+                idArray.push(user.id);
+              }
+              const { dataValues: { record } } = await Users.findOne({
+                attributes: ['record'],
+                where: { id: user.id }
+              });
+              const newRecords = Object.entries(record).reduce((acc, [day, value]) => {
+                if (day !== date) {
+                  acc[day] = value;
+                } else {
+                  return acc;
+                }
+                return acc;
+              }, {});
+              await Users.update({ record: newRecords }, { where: { id: user.id } });
               // await sendMailCancelRecording(user.username, user.email, time, key);
             }
           });
           await Date_Times.destroy({ where: { date } });
-          res.status(200).json({ code: 1 });
+          res.status(200).json({ code: 1, idArray });
+          console.log(idArray)
         } else {
           res.status(200).json({ code: 2 });
+        }
+      }
+    } catch (e) {
+      console.log(e);
+      res.sendStatus(500);
+    }
+  }
+
+  async removeRecord(req, res) {
+    try {
+      const { dataValues: { role } } = req.user;
+      const { date, time } = req.body;
+      const { dataValues } = await Date_Times.findOne({ where: { date } });
+      if (!dataValues.time.hasOwnProperty(time[0])) {
+        return res.status(200).json({ code: 2 });
+      } else {
+        const { user } = dataValues.time[time[0]];
+        if (user) {
+          const newTime = Object.entries(dataValues.time).reduce((acc, [key, value]) => {
+            if (key !== time[0]) {
+            acc[key] = value;
+            } else {
+              acc[key] = false;
+            }
+            return acc;
+          }, {});
+          const { dataValues: { record } } = await Users.findOne({
+            attributes: ['record'],
+            where: { id: user.id }
+          });
+          const newRecords = Object.entries(record).reduce((acc, [key, value]) => {
+            if (key !== date) {
+            acc[key] = value;
+            } else {
+              const newValue = value.time.filter((value) => value !== time[0]);
+              if (!newValue.length) {
+                return acc;
+              } else {
+                acc[key] = { stringDate: value.stringDate, time: newValue };
+              }
+            }
+            return acc;
+          }, {});
+          await Date_Times.update({ time: newTime }, { where: { date } });
+          await Users.update({ record: newRecords }, { where: { id: user.id } });
+          if (isAdmin(role)) {
+            // await sendMailCancelRecording(user.username, user.email, time[1], time[0]);
+            res.status(200).json({ code: 1, newRecords, userId: user.id });
+          } else {
+            res.status(200).json({ code: 1, newRecords });
+          }
+        } else {
+          return res.status(200).json({ code: 3 });
         }
       }
     } catch (e) {
@@ -199,12 +271,25 @@ class Calendar {
       const data = await Date_Times.findOne({ where: { date } });
       const { dataValues } = data ?? '';
       if (dataValues) {
-        if (dataValues.time[time] !== undefined) {
+        if (dataValues.time[time] !== undefined && !dataValues.time[time].user) {
           dataValues.time[time] = { user: { id, username, email, phone } };
           await Date_Times.update({ time: dataValues.time }, { where: { date } });
-          const recordArray = record[date] ? record[date].push(time) : record[date] = [time];
-          await Users.update({ record: recordArray }, { where: { id } });
-          res.status(200).json({ code: 1 });
+          if (record[date]) {
+            record[date].time.push(time);
+            record[date].time = record[date].time.sort((a, b) => a.localeCompare(b));
+          } else {
+            record[date] = { stringDate, time: [time] };
+          }
+          const recordKeys = Object.keys(record);
+          const newRecords = recordKeys.length > 1
+          ? recordKeys.sort((a, b) => a.localeCompare(b))
+            .reduce((acc, key) => {
+              acc[key] = record[key];
+              return acc;
+            }, {})
+          : record;
+          await Users.update({ record }, { where: { id } });
+          res.status(200).json({ code: 1, record: newRecords });
           // await sendMailRecordingSuccess(username, email, stringDate, time);
         } else {
           res.status(200).json({ code: 2 });

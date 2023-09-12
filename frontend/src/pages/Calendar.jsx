@@ -7,6 +7,7 @@ import { Helmet } from 'react-helmet';
 import { MobileContext } from '../components/Context.jsx';
 import AdminPanel from '../components/AdminPanel.jsx';
 import MemberPanel from '../components/MemberPanel.jsx';
+import { ModalTimesHandler } from '../components/Modals.jsx';
 import { updateTokens } from '../slices/loginSlice.js';
 import { fetchDate } from '../slices/calendarSlice.js';
 
@@ -18,6 +19,10 @@ const Calendar = () => {
 
   const { refreshToken, role, token } = useSelector((state) => state.login);
   const { currentDate } = useSelector((state) => state.calendar);
+
+  const [show, setShow] = useState([false, { time: '', act: '', user: '' }]);
+  const modalClose = (time, act) => setShow([false, { time, act, user: '' }]);
+  const modalShow = ({ time, act = '', user = '' }) => setShow([true, { time, act, user }]);
 
   useEffect(() => {
     if (refreshToken !== null) {
@@ -39,6 +44,12 @@ const Calendar = () => {
           <meta name="description" content={t('calendar.description')} />
           <link rel="canonical" href={window.location.href} />
         </Helmet>
+        <ModalTimesHandler
+          date={currentDate}
+          obj={show[1]}
+          show={show[0]}
+          onHide={modalClose}
+        />
         <Stack direction="horizontal">
           <Stack>
             <Alert variant="primary" className="text-center">
@@ -51,7 +62,7 @@ const Calendar = () => {
                 setCurrentStringDate(value.toLocaleString('ru-RU', { year: 'numeric', month: 'long', day: 'numeric' }).slice(0, -1));
                 dispatch(fetchDate({ token, date: value.toLocaleDateString('en-CA') }));
               }}
-              tileClassName={({ view }) => (view === 'month' ? 'open-date' : null)}
+              minDate={!isAdmin() && new Date()}
             />
           </Stack>
           {isMobile ? null : <div className="vr ms-4 me-5" style={{ width: 2 }} />}
@@ -59,8 +70,8 @@ const Calendar = () => {
       </div>
       <div className="col-12 col-md-8 mb-3">
         {isAdmin()
-          ? <AdminPanel date={currentDate} stringDate={currentStringDate} />
-          : <MemberPanel date={currentDate} stringDate={currentStringDate} />}
+          ? <AdminPanel date={currentDate} stringDate={currentStringDate} modalShow={modalShow} />
+          : <MemberPanel date={currentDate} stringDate={currentStringDate} modalShow={modalShow} />}
       </div>
     </>
   );
