@@ -110,6 +110,10 @@ const loginSlice = createSlice({
         }, {});
       }
     },
+    changeUserData: (state, { payload }) => {
+      const [key, value] = Object.entries(payload)[0];
+      state[key] = value;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -202,5 +206,6 @@ export const {
   removeRecord,
   soketRemoveRecordAdmin,
   soketRemoveDateAdmin,
+  changeUserData,
 } = loginSlice.actions;
 export default loginSlice.reducer;

@@ -14,6 +14,7 @@ import Page404 from '../pages/Page404.jsx';
 import Login from '../pages/Login.jsx';
 import Signup from '../pages/Signup.jsx';
 import Activation from '../pages/Activation.jsx';
+import Recovery from '../pages/Recovery.jsx';
 import { AuthContext } from './Context.jsx';
 import routes from '../routes.js';
 import { fetchTokenStorage, removeToken } from '../slices/loginSlice.js';
@@ -89,6 +90,7 @@ const App = () => {
               <Route path={routes.loginPage} element={<Login />} />
               <Route path={routes.signupPage} element={<Signup />} />
               <Route path={routes.activationPage} element={<Activation />} />
+              <Route path={routes.recoveryPasswordPage} element={<Recovery />} />
               <Route path={routes.notFoundPage} element={<Page404 />} />
             </Routes>
           </div>

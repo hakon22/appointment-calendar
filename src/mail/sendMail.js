@@ -1,6 +1,5 @@
 const nodemailer = require('nodemailer');
 const { upperCase, lowerCase } = require('../utilities/textTransform.js');
-require('dotenv').config();
 
 const siteName = 'localhost:3000';
 const activationPage = '/activation/';
@@ -15,7 +14,7 @@ const transport = nodemailer.createTransport({
   },
 });
 
-const sendMail = async (id, username, email, code) => {
+const sendMailActivationAccount = async (id, username, email, code) => {
   const to = lowerCase(email);
   const subject = `Код подтверждения регистрации на сайте ${siteName}`;
 
@@ -30,7 +29,29 @@ const sendMail = async (id, username, email, code) => {
       <p>Данный код действует 24 часа, после истечения времени Ваша регистрация будет аннулирована.</p>
       <p>Если Вы не регистрировались на нашем сайте - просто проигнорируйте это письмо.</p>
     `
-  }, (error, data) => {
+  }, (error) => {
+    if (error) {
+      console.error('Ошибка при отправке:', error);
+    } else {
+      console.log('Сообщение отправлено!');
+    }
+  });
+}
+
+const sendMailChangeEmail = async (username, email, code) => {
+  const to = lowerCase(email);
+  const subject = `Код подтверждения изменения почты на сайте ${siteName}`;
+
+  await transport.sendMail({
+    from: process.env.LOGIN, to,
+    subject,
+    html: `
+      <h3>Уважаемый ${upperCase(username)}!</h3>
+      <h4>С Вашего аккаунта был послан запрос на смену почты на сайте ${siteName}.</h4>
+      <p>Ваш код подтверждения: <h3><b>${code}</b></h3></p>
+      <p>Если это были не Вы, пожалуйста, смените пароль в личном кабинете.</p>
+    `
+  }, (error) => {
     if (error) {
       console.error('Ошибка при отправке:', error);
     } else {
@@ -54,7 +75,7 @@ const sendMailCancelRecording = async (username, email, date, time) => {
       <p>Вы можете выбрать другое время приёма на нашем сайте: <a href="${siteName}" target="_blank">${siteName}</a></p>
       <p>Приносим свои извинения.</p>
     `
-  }, (error, data) => {
+  }, (error) => {
     if (error) {
       console.error('Ошибка при отправке:', error);
     } else {
@@ -76,7 +97,7 @@ const sendMailRecordingSuccess = async (username, email, date, time) => {
       <p>Пожалуйста, не опаздывайте!</p>
       <p>С уважением, администрация <a href="${siteName}" target="_blank">${siteName}</a></p>
     `
-  }, (error, data) => {
+  }, (error) => {
     if (error) {
       console.error('Ошибка при отправке:', error);
     } else {
@@ -85,4 +106,33 @@ const sendMailRecordingSuccess = async (username, email, date, time) => {
   });
 }
 
-module.exports = { sendMail, sendMailCancelRecording, sendMailRecordingSuccess };
+const sendMailChangePassSuccess = async (username, email, password) => {
+  const to = lowerCase(email);
+  const subject = `Смена пароля на сайте ${siteName}`;
+
+  await transport.sendMail({
+    from: process.env.LOGIN, to,
+    subject,
+    html: `
+      <h3>Уважаемый ${upperCase(username)}!</h3>
+      <h4>Ваш пароль был изменён.</h4>
+      <p>Если это были не Вы, пожалуйста, смените пароль в личном кабинете.</p>
+      <p>Ваш новый пароль: <h3><b>${password}</b></h3></p>
+      <p>С уважением, администрация <a href="${siteName}" target="_blank">${siteName}</a></p>
+    `
+  }, (error) => {
+    if (error) {
+      console.error('Ошибка при отправке:', error);
+    } else {
+      console.log('Сообщение отправлено!');
+    }
+  });
+}
+
+module.exports = {
+  sendMailActivationAccount,
+  sendMailCancelRecording,
+  sendMailRecordingSuccess,
+  sendMailChangePassSuccess,
+  sendMailChangeEmail,
+};

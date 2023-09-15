@@ -1,6 +1,6 @@
 const { getDigitalCode } = require('node-verification-code');
 const Users = require('../db/tables/Users.js');
-const { sendMail } = require('../mail/sendMail.js');
+const { sendMailActivationAccount } = require('../mail/sendMail.js');
 const { generateRefreshToken } = require('../authentication/tokensGen.js');
 
 const codeGen = () => getDigitalCode(4).toString();
@@ -42,7 +42,7 @@ class Activation {
           await Users.update({ refresh_token: [refreshToken], code_activation: null }, { where: { id } });
           res.status(200).send({ code: 1, refreshToken });
         } else if (code_activation !== Number(code)) {
-          res.status(200).send({ code: 2, message: 'Неверный код подтверждения' });
+          res.status(200).send({ code: 2 });
         }
       } else {
         res.status(200).send(false);
@@ -65,7 +65,7 @@ class Activation {
         const { username, email } = user;
         const newCode = codeGen();
         await Users.update({ code_activation: newCode }, { where: { id } });
-        await sendMail(id, username, email, newCode);
+        await sendMailActivationAccount(id, username, email, newCode);
         res.status(200).send(true);
       } else {
         res.status(200).send(false);
@@ -90,10 +90,10 @@ class Activation {
           const newCode = codeGen();
           const { username } = user;
           await Users.update({ email, code_activation: newCode }, { where: { id } });
-          await sendMail(id, username, email, newCode);
+          await sendMailActivationAccount(id, username, email, newCode);
           res.status(200).send({ code: 1 });
         } else {
-          res.status(200).send({ code: 2, message: 'Такой email уже существует' });
+          res.status(200).send({ code: 2 });
         }
       } else {
         res.status(200).send(false);

@@ -1,26 +1,26 @@
 const bcrypt = require('bcryptjs');
 const { codeGen } = require('../activation/Activation.js');
 const Users = require('../db/tables/Users.js');
-const { sendMail } = require('../mail/sendMail.js');
+const { sendMailActivationAccount } = require('../mail/sendMail.js');
 const { generateAccessToken, generateRefreshToken } = require('../authentication/tokensGen.js');
 
 const adminEmail = ['hakon1@mail.ru'];
 
-class Authentication {
+class Auth {
 
   async signup(req, res) {
     try {
       const { username, phone, password, email } = req.body;
       const candidate = await Users.findOne({ where: { email } });
       if (candidate) {
-        return res.json({ message: 'Такой email уже существует', code: 2 });
+        return res.json({ code: 2 });
       }
       const role = adminEmail.includes(email) ? 'admin' : 'member'; 
       const hashPassword = bcrypt.hashSync(password, 10);
       const code_activation = codeGen();
       const user = await Users.create({ username, phone, password: hashPassword, email, role, code_activation });
       const { id } = user;
-      await sendMail(id, username, email, code_activation);
+      await sendMailActivationAccount(id, username, email, code_activation);
       setTimeout( async () => {
         const { code_activation } = await Users.findOne({
           attributes: ['code_activation'],
@@ -42,14 +42,14 @@ class Authentication {
       const { email, password } = req.body;
       const user = await Users.findOne({ where: { email } });
       if (!user) {
-        return res.json({ message: 'Такой пользователь не зарегистрирован', code: 1 });
+        return res.json({ code: 1 });
       }
-      const validPassword = bcrypt.compareSync(password, user.password);
-      if (!validPassword) {
-        return res.json({ message: 'Неверный пароль', code: 2 });
+      const isValidPassword = bcrypt.compareSync(password, user.password);
+      if (!isValidPassword) {
+        return res.json({ code: 2 });
       }
       if (user.code_activation) {
-        return res.json({ message: 'Аккаунт не активирован', code: 3 });
+        return res.json({ code: 3 });
       }
       const token = generateAccessToken(user.id, user.email);
       const refreshToken = generateRefreshToken(user.id, user.email);
@@ -123,6 +123,4 @@ class Authentication {
   }
 }
 
-const Auth = new Authentication();
-
-module.exports = Auth;
+module.exports = new Auth();

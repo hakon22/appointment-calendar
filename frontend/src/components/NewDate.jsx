@@ -26,7 +26,7 @@ const NewDate = ({ date, time }) => {
           const { data } = await axios.post(routes.setDate, values, {
             headers: { Authorization: `Bearer ${token}` },
           });
-          resetForm({ values: date });
+          resetForm({ values: { date } });
           setField([]);
           soketAddNewDate(data);
           notify(t('toast.addNewDateSuccess'), 'success');
@@ -35,7 +35,7 @@ const NewDate = ({ date, time }) => {
             headers: { Authorization: `Bearer ${token}` },
           });
           if (data.code === 1) {
-            resetForm({ values: date });
+            resetForm({ values: { date } });
             setField([]);
             soketAddNewTime(data);
             notify(t('toast.addNewTimeSuccess'), 'success');

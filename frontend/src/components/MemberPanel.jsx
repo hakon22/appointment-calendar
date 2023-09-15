@@ -10,6 +10,7 @@ import {
 import { isEmpty } from 'lodash';
 import { MobileContext } from './Context.jsx';
 import ConfirmRecord from './ConfirmRecord.jsx';
+import ChangeData from './ChangeData.jsx';
 
 const MemberPanel = ({ date, stringDate, modalShow }) => {
   const { t } = useTranslation();
@@ -141,11 +142,10 @@ const MemberPanel = ({ date, stringDate, modalShow }) => {
           <Tab eventKey="setup" title={t('calendar.tabs.setup')}>
             <hr />
             <Card.Body>
-              <Card.Title>{t('calendar.setupTitle')}</Card.Title>
-              <Card.Text>
-                {t('calendar.setupText')}
+              <Card.Title className="mb-4">{t('calendar.setupTitle')}</Card.Title>
+              <Card.Text as="div">
+                <ChangeData />
               </Card.Text>
-              <Button variant="primary">Какая-нибудь кнопка</Button>
             </Card.Body>
           </Tab>
         </Tabs>

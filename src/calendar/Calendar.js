@@ -1,7 +1,7 @@
-const e = require('express');
 const Date_Times = require('../db/tables/Date_Times.js');
 const Users = require('../db/tables/Users.js');
 const { sendMailCancelRecording, sendMailRecordingSuccess } = require('../mail/sendMail.js');
+const Telegram = require('../telegram/Telegram.js');
 
 const isAdmin = (role) => role === 'admin';
 
@@ -145,7 +145,7 @@ class Calendar {
         } else {
           const { user } = dataValues.time[time[0]];
           if (user) {
-            // await sendMailCancelRecording(user.username, user.email, time[1], time[0]);
+            await sendMailCancelRecording(user.username, user.email, time[1], time[0]);
           }
           const timeEntries = Object.entries(dataValues.time);
           const newTime = timeEntries.length > 1
@@ -195,12 +195,11 @@ class Calendar {
                 return acc;
               }, {});
               await Users.update({ record: newRecords }, { where: { id: user.id } });
-              // await sendMailCancelRecording(user.username, user.email, time, key);
+              await sendMailCancelRecording(user.username, user.email, time, key);
             }
           });
           await Date_Times.destroy({ where: { date } });
           res.status(200).json({ code: 1, idArray });
-          console.log(idArray)
         } else {
           res.status(200).json({ code: 2 });
         }
@@ -237,6 +236,7 @@ class Calendar {
             if (key !== date) {
             acc[key] = value;
             } else {
+              Telegram.sendMessageCancelRecord(user.username, user.email, user.phone, value.stringDate, time[0]);
               const newValue = value.time.filter((value) => value !== time[0]);
               if (!newValue.length) {
                 return acc;
@@ -249,7 +249,7 @@ class Calendar {
           await Date_Times.update({ time: newTime }, { where: { date } });
           await Users.update({ record: newRecords }, { where: { id: user.id } });
           if (isAdmin(role)) {
-            // await sendMailCancelRecording(user.username, user.email, time[1], time[0]);
+            await sendMailCancelRecording(user.username, user.email, time[1], time[0]);
             res.status(200).json({ code: 1, newRecords, userId: user.id });
           } else {
             res.status(200).json({ code: 1, newRecords });
@@ -289,8 +289,9 @@ class Calendar {
             }, {})
           : record;
           await Users.update({ record }, { where: { id } });
+          await sendMailRecordingSuccess(username, email, stringDate, time);
+          Telegram.sendMessageAfterRecord(username, email, phone, stringDate, time);
           res.status(200).json({ code: 1, record: newRecords });
-          // await sendMailRecordingSuccess(username, email, stringDate, time);
         } else {
           res.status(200).json({ code: 2 });
         }
@@ -304,6 +305,4 @@ class Calendar {
   }
 }
 
-const CalendarHandler = new Calendar();
-
-module.exports = CalendarHandler;
+module.exports = new Calendar();

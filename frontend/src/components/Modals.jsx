@@ -35,7 +35,7 @@ export const ModalChangeActivationEmail = ({
           notify(t('toast.changeEmailSuccess'), 'success');
         } else if (data.code === 2) {
           setSubmitting(false);
-          setFieldError('email', data.message);
+          setFieldError('email', t('validation.emailAlreadyExists'));
         } else if (!data) {
           navigate(routes.loginPage);
           notify(t('toast.doesNotRequireActivation'), 'error');

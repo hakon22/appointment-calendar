@@ -31,6 +31,9 @@ const Users = db.define(
     code_activation: {
       type: DataTypes.INTEGER,
     },
+    change_email_code: {
+      type: DataTypes.INTEGER,
+    },
     record: {
       type: DataTypes.JSONB,
       defaultValue: {},

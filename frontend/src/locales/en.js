@@ -1,8 +1,8 @@
 export default {
   translation: {
     navBar: {
-      title: 'Календарь записи',
-      exit: 'Выйти',
+      title: 'Recording Calendar',
+      exit: 'Exit',
     },
     loginForm: {
       title: 'Вход',

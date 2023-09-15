@@ -7,7 +7,7 @@ import InputMask from 'react-input-mask';
 import axios from 'axios';
 import cn from 'classnames';
 import {
-  Button, Form, FloatingLabel, Image, DropdownButton, ButtonGroup, Dropdown,
+  Button, Form, FloatingLabel, Image, DropdownButton, ButtonGroup, Dropdown, Spinner,
 } from 'react-bootstrap';
 import { EnvelopeAt } from 'react-bootstrap-icons';
 import notify from '../utilities/toast.js';
@@ -59,7 +59,7 @@ const ActivationForm = ({ id }) => {
           notify(t('toast.activationSuccess'), 'success');
         } else if (data.code === 2) {
           setSubmitting(false);
-          setFieldError('code', data.message);
+          setFieldError('code', t('validation.incorrectCode'));
         } else if (!data) {
           navigate(routes.loginPage);
           notify(t('toast.doesNotRequireActivation'), 'error');
@@ -126,9 +126,10 @@ const ActivationForm = ({ id }) => {
             onChange={formik.handleChange}
             value={formik.values.code}
             disabled={formik.isSubmitting}
-            isInvalid={formik.errors.code && formik.submitCount > 0}
+            isInvalid={formik.errors.code && formik.submitCount}
             onBlur={formik.handleBlur}
             name="code"
+            autoComplete="off"
             placeholder={t('activationForm.code')}
           />
           <Form.Control.Feedback type="invalid" tooltip placement="right" className="anim-show">
@@ -143,7 +144,17 @@ const ActivationForm = ({ id }) => {
               {t('activationForm.timerButton')}
             </Button>
           )}
-        <Button variant="outline-primary" type="submit" disabled={formik.isSubmitting}>{t('activationForm.submit')}</Button>
+        <Button variant="outline-primary" type="submit" disabled={formik.isSubmitting}>
+          {formik.isSubmitting ? (
+            <Spinner
+              as="span"
+              animation="border"
+              size="sm"
+              role="status"
+              aria-hidden="true"
+            />
+          ) : t('activationForm.submit')}
+        </Button>
       </Form>
     </div>
   );

@@ -14,6 +14,7 @@ import { Bucket } from 'react-bootstrap-icons';
 import cn from 'classnames';
 import { MobileContext } from './Context.jsx';
 import NewDate from './NewDate.jsx';
+import ChangeData from './ChangeData.jsx';
 import { fetchDate } from '../slices/calendarSlice.js';
 
 const AdminPanel = ({ date, stringDate, modalShow }) => {
@@ -189,11 +190,10 @@ const AdminPanel = ({ date, stringDate, modalShow }) => {
           <Tab eventKey="setup" title={t('calendar.tabs.setup')}>
             <hr />
             <Card.Body>
-              <Card.Title>{t('calendar.adminSetupTitle')}</Card.Title>
-              <Card.Text>
-                {t('calendar.adminSetupText')}
+              <Card.Title className="mb-4">{t('calendar.setupTitle')}</Card.Title>
+              <Card.Text as="div">
+                <ChangeData />
               </Card.Text>
-              <Button variant="primary">Какая-нибудь кнопка</Button>
             </Card.Body>
           </Tab>
         </Tabs>

@@ -4,6 +4,7 @@ export default {
   homePage: '/',
   loginPage: '/login',
   signupPage: '/signup',
+  recoveryPasswordPage: '/recovery',
   activationPage: '/activation/:id',
   activationUrlPage: '/activation/',
   notFoundPage: '*',
@@ -22,5 +23,8 @@ export default {
   removeTime: [apiPath, 'date/remove-time'].join('/'),
   removeRecord: [apiPath, 'date/remove-record'].join('/'),
   recording: [apiPath, 'recording'].join('/'),
+  changePass: [apiPath, 'change-pass'].join('/'),
+  changeUserData: [apiPath, 'change-user-data'].join('/'),
+  cancelChangeEmail: [apiPath, 'cancel-change-email'].join('/'),
   checkRole: [apiPath, 'get-role'].join('/'),
 };

@@ -1,6 +1,5 @@
 const JwtStrategy = require('passport-jwt').Strategy;
 const ExtractJwt = require('passport-jwt').ExtractJwt;
-require('dotenv').config();
 const Users = require('../db/tables/Users.js');
  
  

@@ -2,7 +2,7 @@ import { useFormik } from 'formik';
 import { useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  Button, Form, FloatingLabel, Image,
+  Button, Form, FloatingLabel, Image, Spinner,
 } from 'react-bootstrap';
 import InputMask from 'react-input-mask';
 import { useNavigate } from 'react-router-dom';
@@ -33,12 +33,12 @@ const SignupForm = () => {
       try {
         values.username = upperCase(values.username);
         values.email = lowerCase(values.email);
-        const { data: { message, code, id } } = await axios.post(routes.signup, values);
+        const { data: { code, id } } = await axios.post(routes.signup, values);
         if (code === 1) {
           navigate(`${routes.activationUrlPage}${id}`);
         } else if (code === 2) {
           setSubmitting(false);
-          setFieldError('email', message);
+          setFieldError('email', t('validation.userAlreadyExists'));
         } else if (!code) {
           setSubmitting(false);
           notify(t('toast.networkError'), 'error');
@@ -51,7 +51,7 @@ const SignupForm = () => {
   });
 
   const formClass = (field) => cn('mb-3', {
-    'mb-3-5': formik.errors[field] && formik.touched[field],
+    'mb-3-5': formik.errors[field] && formik.touched[field] && formik.submitCount,
   });
 
   return (
@@ -68,11 +68,11 @@ const SignupForm = () => {
             onChange={formik.handleChange}
             value={formik.values.username}
             disabled={formik.isSubmitting}
-            isInvalid={formik.errors.username && formik.touched.username}
+            isInvalid={formik.errors.username && formik.submitCount}
             onBlur={formik.handleBlur}
             name="username"
+            autoComplete="on"
             placeholder={t('signupForm.username')}
-            required
           />
           <Form.Control.Feedback type="invalid" tooltip placement="right" className="anim-show">
             {t(formik.errors.username)}
@@ -85,11 +85,11 @@ const SignupForm = () => {
             onChange={formik.handleChange}
             value={formik.values.email}
             disabled={formik.isSubmitting}
-            isInvalid={formik.errors.email && formik.touched.email}
+            isInvalid={formik.errors.email && formik.submitCount}
             onBlur={formik.handleBlur}
             name="email"
+            autoComplete="on"
             placeholder={t('signupForm.email')}
-            required
           />
           <Form.Control.Feedback type="invalid" tooltip placement="right" className="anim-show">
             {t(formik.errors.email)}
@@ -104,11 +104,11 @@ const SignupForm = () => {
             onChange={formik.handleChange}
             value={formik.values.phone}
             disabled={formik.isSubmitting}
-            isInvalid={formik.errors.phone && formik.touched.phone}
+            isInvalid={formik.errors.phone && formik.submitCount}
             onBlur={formik.handleBlur}
             name="phone"
+            autoComplete="on"
             placeholder={t('signupForm.phone')}
-            required
           />
           <Form.Control.Feedback type="invalid" tooltip placement="right" className="anim-show">
             {t(formik.errors.phone)}
@@ -120,12 +120,11 @@ const SignupForm = () => {
             onChange={formik.handleChange}
             value={formik.values.password}
             disabled={formik.isSubmitting}
-            isInvalid={formik.errors.password && formik.touched.password}
+            isInvalid={formik.errors.password && formik.submitCount}
             onBlur={formik.handleBlur}
             name="password"
             type="password"
             placeholder={t('signupForm.password')}
-            required
           />
           <Form.Control.Feedback type="invalid" tooltip placement="right" className="anim-show">
             {t(formik.errors.password)}
@@ -137,18 +136,27 @@ const SignupForm = () => {
             onChange={formik.handleChange}
             value={formik.values.confirmPassword}
             disabled={formik.isSubmitting}
-            isInvalid={formik.errors.confirmPassword && formik.touched.confirmPassword}
+            isInvalid={formik.errors.confirmPassword && formik.submitCount}
             onBlur={formik.handleBlur}
             name="confirmPassword"
             type="password"
             placeholder={t('signupForm.confirm')}
-            required
           />
           <Form.Control.Feedback type="invalid" tooltip placement="right" className="anim-show">
-            {t('signupForm.mustMatch')}
+            {t('validation.mastMatch')}
           </Form.Control.Feedback>
         </FloatingLabel>
-        <Button variant="outline-primary" className="w-100" type="submit" disabled={formik.isSubmitting}>{t('signupForm.submit')}</Button>
+        <Button variant="outline-primary" className="w-100" type="submit" disabled={formik.isSubmitting}>
+          {formik.isSubmitting ? (
+            <Spinner
+              as="span"
+              animation="border"
+              size="sm"
+              role="status"
+              aria-hidden="true"
+            />
+          ) : t('signupForm.submit')}
+        </Button>
       </Form>
     </div>
   );
