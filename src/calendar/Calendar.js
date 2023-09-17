@@ -1,6 +1,6 @@
 const Date_Times = require('../db/tables/Date_Times.js');
 const Users = require('../db/tables/Users.js');
-const { sendMailCancelRecording, sendMailRecordingSuccess } = require('../mail/sendMail.js');
+const { sendMailCancelRecording, sendMailRecording } = require('../mail/sendMail.js');
 const Telegram = require('../telegram/Telegram.js');
 
 const isAdmin = (role) => role === 'admin';
@@ -289,7 +289,7 @@ class Calendar {
             }, {})
           : record;
           await Users.update({ record }, { where: { id } });
-          await sendMailRecordingSuccess(username, email, stringDate, time);
+          await sendMailRecording(username, email, stringDate, time);
           Telegram.sendMessageAfterRecord(username, email, phone, stringDate, time);
           res.status(200).json({ code: 1, record: newRecords });
         } else {

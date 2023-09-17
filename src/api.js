@@ -17,6 +17,7 @@ router.post('/api/recording', passport.authenticate('jwt', { session: false }), 
 router.post('/api/change-pass', passport.authenticate('jwt', { session: false }), UserData.changePass);
 router.post('/api/change-user-data', passport.authenticate('jwt', { session: false }), UserData.changeUserData);
 router.get('/api/cancel-change-email', passport.authenticate('jwt', { session: false }), UserData.cancelChangeEmail);
+router.post('/api/recovery-password', Auth.recoveryPassword);
 
 // activation
 router.post('/api/activation/', Act.activation);

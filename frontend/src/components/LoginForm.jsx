@@ -10,6 +10,7 @@ import cn from 'classnames';
 import pear from '../images/pear.svg';
 import { fetchLogin } from '../slices/loginSlice.js';
 import { AuthContext, MobileContext } from './Context.jsx';
+import { lowerCase } from '../utilities/textTransform.js';
 import { loginValidation } from '../validations/validations.js';
 import routes from '../routes.js';
 
@@ -28,6 +29,7 @@ const LoginForm = () => {
     validationSchema: loginValidation,
     onSubmit: async (values, { setFieldError, setSubmitting }) => {
       try {
+        values.email = lowerCase(values.email);
         const {
           payload: { token, refreshToken, code },
         } = await dispatch(fetchLogin(values));

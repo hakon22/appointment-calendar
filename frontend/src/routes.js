@@ -26,5 +26,6 @@ export default {
   changePass: [apiPath, 'change-pass'].join('/'),
   changeUserData: [apiPath, 'change-user-data'].join('/'),
   cancelChangeEmail: [apiPath, 'cancel-change-email'].join('/'),
+  recoveryPassword: [apiPath, 'recovery-password'].join('/'),
   checkRole: [apiPath, 'get-role'].join('/'),
 };

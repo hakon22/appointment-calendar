@@ -2,7 +2,7 @@ const bcrypt = require('bcryptjs');
 const Users = require('../db/tables/Users.js');
 const Date_Times = require('../db/tables/Date_Times.js');
 const { codeGen } = require('../activation/Activation.js');
-const { sendMailChangePassSuccess, sendMailChangeEmail } = require('../mail/sendMail.js');
+const { sendMailChangePass, sendMailChangeEmail } = require('../mail/sendMail.js');
 
 class UserData {
 
@@ -17,7 +17,7 @@ class UserData {
         } else {
           const hashPassword = bcrypt.hashSync(values.password, 10);
           await Users.update({ password: hashPassword }, { where: { id } });
-          await sendMailChangePassSuccess(username, email, values.password);
+          await sendMailChangePass(username, email, values.password);
           res.json({ code: 4 });
         }
       } else {

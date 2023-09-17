@@ -34,8 +34,8 @@ const App = () => {
     }
     await axios.post(routes.deleteAuth, { id, refreshTokenStorage });
     dispatch(removeToken());
-    dispatch(removeData());
     setLoggedIn(false);
+    dispatch(removeData());
   }, [dispatch, id]);
 
   const authServices = useMemo(() => ({ loggedIn, logIn, logOut }), [loggedIn, logOut]);

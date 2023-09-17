@@ -10,8 +10,10 @@ import { Pencil, CheckLg, XLg } from 'react-bootstrap-icons';
 import InputMask from 'react-input-mask';
 import axios from 'axios';
 import cn from 'classnames';
+import { isEmpty } from 'lodash';
 import notify from '../utilities/toast.js';
 import { changeUserData } from '../slices/loginSlice.js';
+import { upperCase, lowerCase } from '../utilities/textTransform.js';
 import ApiContext from './Context.jsx';
 import { settingsValidation, passwordsValidation, continuePasswordValidation } from '../validations/validations.js';
 import routes from '../routes.js';
@@ -70,6 +72,12 @@ const ChangeData = () => {
     validationSchema: settingsValidation,
     onSubmit: async (values, { setSubmitting, setFieldError }) => {
       try {
+        if (values.username) {
+          values.username = upperCase(values.username);
+        }
+        if (values.email) {
+          values.email = lowerCase(values.email);
+        }
         const changedValue = Object.keys(values).reduce((acc, key) => {
           if (initialValues[key] === values[key]) {
             return acc;
@@ -78,28 +86,32 @@ const ChangeData = () => {
             ? { email: continueChangeEmail, [key]: values[key] }
             : { [key]: values[key] };
         }, {});
-        const { data } = await axios.post(routes.changeUserData, changedValue, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (data.code === 1) {
-          const field = Object.keys(changedValue)[0];
-          const dateTimeRecord = Object.entries(record);
-          dispatch(changeUserData(changedValue));
-          setDefaultValue(field, formik);
-          if (dateTimeRecord.length) {
-            soketRecording({ date: dateTimeRecord[0][0], time: dateTimeRecord[0][1].time[0] });
+        if (isEmpty(changedValue)) {
+          setDefaultValue(Object.keys(values)[0], formik);
+        } else {
+          const { data } = await axios.post(routes.changeUserData, changedValue, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (data.code === 1) {
+            const field = Object.keys(changedValue)[0];
+            const dateTimeRecord = Object.entries(record);
+            dispatch(changeUserData(changedValue));
+            setDefaultValue(field, formik);
+            if (dateTimeRecord.length) {
+              soketRecording({ date: dateTimeRecord[0][0], time: dateTimeRecord[0][1].time[0] });
+            }
+            notify(t(`toast.${field}ChangeSuccess`), 'success');
+          } else if (data.code === 2) {
+            setSubmitting(false);
+            setFieldError('email', t('validation.emailAlreadyExists'));
+          } else if (data.code === 3) {
+            formik.handleReset();
+            setContinueChangeEmail(values.email);
+            emailRef.current.focus();
+          } else if (data.code === 4) {
+            setSubmitting(false);
+            setFieldError('code', t('validation.incorrectCode'));
           }
-          notify(t(`toast.${field}ChangeSuccess`), 'success');
-        } else if (data.code === 2) {
-          setSubmitting(false);
-          setFieldError('email', t('validation.emailAlreadyExists'));
-        } else if (data.code === 3) {
-          formik.handleReset();
-          setContinueChangeEmail(values.email);
-          emailRef.current.focus();
-        } else if (data.code === 4) {
-          setSubmitting(false);
-          setFieldError('code', t('validation.incorrectCode'));
         }
       } catch (e) {
         notify(t('toast.unknownError'), 'error');

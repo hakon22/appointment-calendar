@@ -84,7 +84,7 @@ const sendMailCancelRecording = async (username, email, date, time) => {
   });
 }
 
-const sendMailRecordingSuccess = async (username, email, date, time) => {
+const sendMailRecording = async (username, email, date, time) => {
   const to = lowerCase(email);
   const subject = `Запись на сайте ${siteName}`;
 
@@ -106,7 +106,7 @@ const sendMailRecordingSuccess = async (username, email, date, time) => {
   });
 }
 
-const sendMailChangePassSuccess = async (username, email, password) => {
+const sendMailChangePass = async (username, email, password) => {
   const to = lowerCase(email);
   const subject = `Смена пароля на сайте ${siteName}`;
 
@@ -129,10 +129,34 @@ const sendMailChangePassSuccess = async (username, email, password) => {
   });
 }
 
+const sendMailRecoveryPass = async (username, email, password) => {
+  const to = lowerCase(email);
+  const subject = `Восстановление пароля на сайте ${siteName}`;
+
+  await transport.sendMail({
+    from: process.env.LOGIN, to,
+    subject,
+    html: `
+      <h3>Уважаемый ${upperCase(username)}!</h3>
+      <h4>Вы запросили восстановление пароля.</h4>
+      <p>Если это были не Вы, пожалуйста, смените пароль в личном кабинете.</p>
+      <p>Ваш новый пароль: <h3><b>${password}</b></h3></p>
+      <p>С уважением, администрация <a href="${siteName}" target="_blank">${siteName}</a></p>
+    `
+  }, (error) => {
+    if (error) {
+      console.error('Ошибка при отправке:', error);
+    } else {
+      console.log('Сообщение отправлено!');
+    }
+  });
+}
+
 module.exports = {
   sendMailActivationAccount,
   sendMailCancelRecording,
-  sendMailRecordingSuccess,
-  sendMailChangePassSuccess,
+  sendMailRecording,
+  sendMailChangePass,
   sendMailChangeEmail,
+  sendMailRecoveryPass,
 };

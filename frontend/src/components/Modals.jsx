@@ -11,6 +11,7 @@ import routes from '../routes.js';
 import ApiContext from './Context.jsx';
 import { changeEmailActivation, removeRecord } from '../slices/loginSlice.js';
 import notify from '../utilities/toast.js';
+import { lowerCase } from '../utilities/textTransform.js';
 import { emailValidation, timeValidation } from '../validations/validations.js';
 
 export const ModalChangeActivationEmail = ({
@@ -28,6 +29,7 @@ export const ModalChangeActivationEmail = ({
     validationSchema: emailValidation,
     onSubmit: async (values, { setFieldError, setSubmitting }) => {
       try {
+        values.email = lowerCase(values.email);
         const { data } = await axios.post(routes.activationChangeEmail, { ...values, id });
         if (data.code === 1) {
           dispatch(changeEmailActivation(values.email));

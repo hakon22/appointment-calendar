@@ -1,7 +1,8 @@
 const bcrypt = require('bcryptjs');
+const passGen = require('generate-password');
 const { codeGen } = require('../activation/Activation.js');
 const Users = require('../db/tables/Users.js');
-const { sendMailActivationAccount } = require('../mail/sendMail.js');
+const { sendMailActivationAccount, sendMailRecoveryPass } = require('../mail/sendMail.js');
 const { generateAccessToken, generateRefreshToken } = require('../authentication/tokensGen.js');
 
 const adminEmail = ['hakon1@mail.ru'];
@@ -94,15 +95,6 @@ class Auth {
     }
   }
 
-  async confirmAuth(req, res) {
-    try {
-      res.status(200).json({ status: 'ok' });
-    } catch (e) {
-      console.log(e);
-      res.sendStatus(401);
-    }
-  }
-
   async removeAuth(req, res) {
     try {
       const { id, refreshToken } = req.body;
@@ -114,8 +106,31 @@ class Auth {
         const refreshTokens = refresh_token.filter((token) => token !== refreshToken);
         const newRefreshTokens = refreshTokens.length > 0 ? refreshTokens : null;
         await Users.update({ refresh_token: newRefreshTokens }, { where: { id } });
+        res.status(200).json({ status: 'Tokens has been deleted' });
+      } else {
+        throw new Error();
       }
-      res.status(200).json({ status: 'Tokens has been deleted' });
+    } catch (e) {
+      console.log(e);
+      res.sendStatus(500);
+    }
+  }
+
+  async recoveryPassword(req, res) {
+    try {
+      const values = req.body;
+      const { dataValues: { email } } = await Users.findOne({
+        attributes: ['email'],
+        where: { email: values.email },
+      });
+      if (!email) {
+        return res.json({ code: 2 });
+      }
+      const password = passGen.generate({
+        length: 7,
+        numbers: true
+      });
+      res.json({ code: 1 });
     } catch (e) {
       console.log(e);
       res.sendStatus(500);
