@@ -12,7 +12,6 @@ router.post('/api/signup', Auth.signup);
 router.post('/api/login', Auth.login);
 router.get('/api/get-role', passport.authenticate('jwt-refresh', { session: false }), Auth.updateTokens);
 router.post('/api/delete-auth', Auth.removeAuth);
-router.get('/api/auth', passport.authenticate('jwt', { session: false }), Auth.confirmAuth);
 router.post('/api/recording', passport.authenticate('jwt', { session: false }), Calendar.recording);
 router.post('/api/change-pass', passport.authenticate('jwt', { session: false }), UserData.changePass);
 router.post('/api/change-user-data', passport.authenticate('jwt', { session: false }), UserData.changeUserData);

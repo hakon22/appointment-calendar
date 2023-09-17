@@ -119,18 +119,22 @@ class Auth {
   async recoveryPassword(req, res) {
     try {
       const values = req.body;
-      const { dataValues: { email } } = await Users.findOne({
-        attributes: ['email'],
+      const user = await Users.findOne({
+        attributes: ['username', 'email'],
         where: { email: values.email },
       });
-      if (!email) {
-        return res.json({ code: 2 });
+      if (!user) {
+        return res.status(200).json({ code: 2 });
       }
+      const { username, email } = user;
       const password = passGen.generate({
         length: 7,
         numbers: true
       });
-      res.json({ code: 1 });
+      const hashPassword = bcrypt.hashSync(password, 10);
+      await Users.update({ password: hashPassword }, { where: { email } });
+      await sendMailRecoveryPass(username, email, password);
+      res.status(200).json({ code: 1 });
     } catch (e) {
       console.log(e);
       res.sendStatus(500);

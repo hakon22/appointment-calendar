@@ -50,11 +50,12 @@ const RecoveryForm = () => {
     <div className="d-flex justify-content-center align-items-center gap-5">
       {!isMobile && <Image className="w-25 h-25 me-4" src={orange} alt={t('recoveryForm.title')} roundedCircle />}
       {sendMail ? (
-        <Alert as="div" variant="primary" className="col-12 col-md-5 text-center">
-          <p>{t('recoveryForm.toYourMail')}</p>
-          <p><b>{sendMail}</b></p>
+        <Alert as="div" variant="primary" className="col-12 col-md-5 text-center mb-0">
+          <span>{t('recoveryForm.toYourMail')}</span>
+          <br />
+          <span><b>{sendMail}</b></span>
           <p>{t('recoveryForm.postNewPassword')}</p>
-          <p>{t('recoveryForm.youCanChange')}</p>
+          <span>{t('recoveryForm.youCanChange')}</span>
         </Alert>
       ) : (
         <Form
