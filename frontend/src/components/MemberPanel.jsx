@@ -67,7 +67,7 @@ const MemberPanel = ({ date, stringDate, modalShow }) => {
                 {!isEmpty(record) && Object.entries(record).map(([key, value]) => (
                   <div key={key} className="d-flex flex-column fs-5 gap-3">
                     <Badge bg="secondary">
-                      {value.stringDate}
+                      {key}
                       :
                     </Badge>
                     <div className="d-flex fs-5 align-items-center gap-3 mb-5">

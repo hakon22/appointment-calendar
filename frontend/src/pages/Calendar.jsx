@@ -12,9 +12,10 @@ import { updateTokens } from '../slices/loginSlice.js';
 import { fetchDate } from '../slices/calendarSlice.js';
 
 const Calendar = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const dispatch = useDispatch();
   const isMobile = useContext(MobileContext);
+  const [date, setDate] = useState('');
   const [currentStringDate, setCurrentStringDate] = useState('');
 
   const { refreshToken, role, token } = useSelector((state) => state.login);
@@ -35,6 +36,13 @@ const Calendar = () => {
   }, [dispatch, refreshToken]);
 
   const isAdmin = () => role === 'admin';
+  const locale = i18n.language === 'ru' ? 'ru-RU' : 'en-EN';
+
+  useEffect(() => {
+    if (date) {
+      setCurrentStringDate(date.toLocaleString(locale, { year: 'numeric', month: 'long', day: 'numeric' }).slice(0, locale === 'ru-RU' ? -1 : 99));
+    }
+  }, [date, locale]);
 
   return (
     <>
@@ -57,12 +65,13 @@ const Calendar = () => {
             </Alert>
             <CalendarApp
               className="w-100"
-              value={currentDate}
+              value={date}
               onClickDay={(value) => {
-                setCurrentStringDate(value.toLocaleString('ru-RU', { year: 'numeric', month: 'long', day: 'numeric' }).slice(0, -1));
-                dispatch(fetchDate({ token, date: value.toLocaleDateString('en-CA') }));
+                setDate(value);
+                dispatch(fetchDate({ token, date: value.toLocaleDateString('ru-RU') }));
               }}
               minDate={!isAdmin() && new Date()}
+              locale={locale}
             />
           </Stack>
           {isMobile ? null : <div className="vr ms-4 me-5" style={{ width: 2 }} />}

@@ -75,7 +75,7 @@ const App = () => {
 
   return (
     <AuthContext.Provider value={authServices}>
-      <BrowserRouter>
+      <BrowserRouter basename="/calendar/">
         <NavBar loggedIn={loggedIn} />
         <hr className="mb-4 mt-0" />
         <div className="container">
