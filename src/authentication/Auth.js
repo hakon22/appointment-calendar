@@ -23,11 +23,11 @@ class Auth {
       const { id } = user;
       await sendMailActivationAccount(id, username, email, code_activation);
       setTimeout( async () => {
-        const { code_activation } = await Users.findOne({
+        const user = await Users.findOne({
           attributes: ['code_activation'],
           where: { id },
-        }) ?? '';
-        if (code_activation !== '') {
+        });
+        if (user.code_activation) {
           await Users.destroy({ where: { id } });
         }
       }, 86400000);

@@ -14,8 +14,7 @@ class Activation {
         attributes: ['email', 'code_activation'],
         where: { id },
       });
-      const { code_activation } = user ?? '';
-      if (code_activation !== '' && user) {
+      if (user.code_activation) {
         const { email } = user;
         res.status(200).send(email);
       } else {
@@ -34,8 +33,7 @@ class Activation {
         attributes: ['email', 'code_activation'],
         where: { id },
       });
-      const { code_activation } = user ?? '';
-      if (code_activation !== '' && user) {
+      if (user.code_activation) {
         const { email } = user;
         if (code_activation === Number(code)) {
           const refreshToken = generateRefreshToken(id, email);
@@ -60,8 +58,7 @@ class Activation {
         attributes: ['username', 'email', 'code_activation'],
         where: { id },
       });
-      const { code_activation } = user ?? '';
-      if (code_activation !== '' && user) {
+      if (user.code_activation) {
         const { username, email } = user;
         const newCode = codeGen();
         await Users.update({ code_activation: newCode }, { where: { id } });
@@ -83,8 +80,7 @@ class Activation {
         attributes: ['id', 'username', 'email', 'code_activation'],
       });
       const user = users.find((user) => user.id === Number(id));
-      const { code_activation } = user ?? '';
-      if (code_activation !== '' && user) {
+      if (user.code_activation) {
         const emails = users.map((user) => user.email);
         if (!emails.includes(email)) {
           const newCode = codeGen();

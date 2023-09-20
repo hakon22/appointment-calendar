@@ -3,17 +3,18 @@ const express = require('express');
 const path = require('path');
 const cors = require('cors');
 const http = require('http');
-const { Server } = require("socket.io");
+const { Server } = require('socket.io');
 const passport = require('passport');
 const router = require('./src/api.js');
 const { connectToDb } = require('./src/db/connect.js');
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server);
+const io = new Server(server, { path: '/calendar/socket.io' });
 
 const port = process.env.PORT || 3001;
 
-const buildPath = path.join(__dirname, 'frontend', 'build');
+const buildPath = path.join(__dirname, 'build');
+console.log(buildPath)
 
 app.use(express.static(buildPath));
 app.use(express.json());
@@ -23,7 +24,7 @@ require('./src/authentication/tokenChecker.js')(passport);
 require('./src/authentication/refreshTokenChecker.js')(passport);
 app.use(router);
 
-app.get('*', (req, res) => {
+app.get('/*', (req, res) => {
   res.sendFile(path.join(buildPath, 'index.html'));
 });
 

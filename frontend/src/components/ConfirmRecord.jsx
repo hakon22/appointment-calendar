@@ -27,7 +27,7 @@ const ConfirmRecord = ({
       phone,
       time,
     },
-    onSubmit: async ({ setSubmitting }) => {
+    onSubmit: async (values, { setSubmitting }) => {
       try {
         const { data } = await axios.post(routes.recording, { date, stringDate, time }, {
           headers: { Authorization: `Bearer ${token}` },

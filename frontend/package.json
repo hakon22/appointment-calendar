@@ -12,6 +12,7 @@
     "eject": "react-scripts eject",
     "snap": "react-snap && npm run generate-sw"
   },
+  "homepage": "calendar",
   "author": "hakon22",
   "license": "ISC",
   "dependencies": {

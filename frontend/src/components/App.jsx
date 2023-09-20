@@ -15,7 +15,7 @@ import Login from '../pages/Login.jsx';
 import Signup from '../pages/Signup.jsx';
 import Activation from '../pages/Activation.jsx';
 import Recovery from '../pages/Recovery.jsx';
-import { AuthContext } from './Context.jsx';
+import { AuthContext, MobileContext } from './Context.jsx';
 import routes from '../routes.js';
 import { fetchTokenStorage, removeToken } from '../slices/loginSlice.js';
 import { removeData } from '../slices/calendarSlice.js';
@@ -23,6 +23,8 @@ import { removeData } from '../slices/calendarSlice.js';
 const App = () => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
+  const { width } = window.screen;
+  const [isMobile, setIsMobile] = useState(width < 768);
   const { id, token, error } = useSelector((state) => state.login);
   const calendarError = useSelector((state) => state.calendar.error);
   const [loggedIn, setLoggedIn] = useState(false);
@@ -73,30 +75,42 @@ const App = () => {
     }
   }, [error, calendarError, logOut, t]);
 
+  useEffect(() => {
+    const handleResize = ({ target }) => {
+      setIsMobile(target.innerWidth < 768);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+
   return (
     <AuthContext.Provider value={authServices}>
-      <BrowserRouter basename="/calendar/">
-        <NavBar loggedIn={loggedIn} />
-        <hr className="mb-4 mt-0" />
-        <div className="container">
-          <div className="row d-flex justify-content-center">
-            <Routes>
-              <Route
-                path={routes.homePage}
-                element={loggedIn
-                  ? <Calendar />
-                  : <Navigate to={routes.loginPage} />}
-              />
-              <Route path={routes.loginPage} element={<Login />} />
-              <Route path={routes.signupPage} element={<Signup />} />
-              <Route path={routes.activationPage} element={<Activation />} />
-              <Route path={routes.recoveryPasswordPage} element={<Recovery />} />
-              <Route path={routes.notFoundPage} element={<Page404 />} />
-            </Routes>
+      <MobileContext.Provider value={isMobile}>
+        <BrowserRouter basename="/calendar">
+          <NavBar loggedIn={loggedIn} />
+          <hr className="mb-4 mt-0" />
+          <div className="container">
+            <div className="row d-flex justify-content-center">
+              <Routes>
+                <Route
+                  path={routes.homePage}
+                  element={loggedIn
+                    ? <Calendar />
+                    : <Navigate to={routes.loginPage} />}
+                />
+                <Route path={routes.loginPage} element={<Login />} />
+                <Route path={routes.signupPage} element={<Signup />} />
+                <Route path={routes.activationPage} element={<Activation />} />
+                <Route path={routes.recoveryPasswordPage} element={<Recovery />} />
+                <Route path={routes.notFoundPage} element={<Page404 />} />
+              </Routes>
+            </div>
           </div>
-        </div>
-        <hr className="mb-4" />
-      </BrowserRouter>
+          <hr className="mb-4" />
+        </BrowserRouter>
+      </MobileContext.Provider>
     </AuthContext.Provider>
   );
 };

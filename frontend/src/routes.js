@@ -1,4 +1,4 @@
-const apiPath = navigator.userAgent === 'ReactSnap' ? 'http://0.0.0.0:3003/api' : '/api';
+const apiPath = navigator.userAgent === 'ReactSnap' ? 'http://0.0.0.0:3003/calendar/api' : '/calendar/api';
 
 export default {
   homePage: '/',

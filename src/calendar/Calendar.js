@@ -174,8 +174,8 @@ class Calendar {
       if (isAdmin(role)) {
         const { date, time } = req.query;
         const data = await Date_Times.findOne({ where: { date } });
-        const { dataValues } = data ?? '';
-        if (dataValues) {
+        if (data) {
+          const { dataValues } = data;
           const idArray = [];
           Object.entries(dataValues.time).forEach(async ([key, { user }]) => {
             if (user) {
@@ -269,8 +269,8 @@ class Calendar {
       const { dataValues: { id, username, email, phone, record } } = req.user;
       const { date, stringDate, time } = req.body;
       const data = await Date_Times.findOne({ where: { date } });
-      const { dataValues } = data ?? '';
-      if (dataValues) {
+      if (data) {
+        const { dataValues } = data;
         if (dataValues.time[time] !== undefined && !dataValues.time[time].user) {
           dataValues.time[time] = { user: { id, username, email, phone } };
           await Date_Times.update({ time: dataValues.time }, { where: { date } });
