@@ -14,12 +14,13 @@ class Activation {
         attributes: ['email', 'code_activation'],
         where: { id },
       });
-      if (user.code_activation) {
-        const { email } = user;
-        res.status(200).send(email);
-      } else {
-        res.status(200).send(false);
+      if (user) {
+        if (user.code_activation) {
+          const { email } = user;
+          return res.status(200).send(email);
+        }
       }
+      res.status(200).send(false);
     } catch (e) {
       console.log(e);
       res.sendStatus(500);
@@ -35,11 +36,11 @@ class Activation {
       });
       if (user.code_activation) {
         const { email } = user;
-        if (code_activation === Number(code)) {
+        if (user.code_activation === Number(code)) {
           const refreshToken = generateRefreshToken(id, email);
           await Users.update({ refresh_token: [refreshToken], code_activation: null }, { where: { id } });
           res.status(200).send({ code: 1, refreshToken });
-        } else if (code_activation !== Number(code)) {
+        } else {
           res.status(200).send({ code: 2 });
         }
       } else {
